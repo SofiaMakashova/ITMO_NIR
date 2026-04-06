@@ -1,0 +1,401 @@
+{
+  "WTI_oil": {
+    "heuristic": [
+      "Brent",
+      "Copper",
+      "Yield10Y",
+      "SP500"
+    ],
+    "causal_expert": [
+      "VIX",
+      "SP500",
+      "Yield10Y",
+      "IndProd_USA"
+    ],
+    "causal_pc": [
+      "Brent"
+    ],
+    "causal_union": [
+      "VIX",
+      "SP500",
+      "Yield10Y",
+      "IndProd_USA",
+      "Brent"
+    ],
+    "causes": [
+      "EIA_crude_stocks",
+      "Brent",
+      "DXY",
+      "ISM_PMI",
+      "OPEC_proxy"
+    ],
+    "instruments": [
+      "EIA_gas_stocks"
+    ],
+    "freq": "D",
+    "file": "A_WTI_oil.csv"
+  },
+  "NatGas": {
+    "heuristic": [],
+    "causal_expert": [
+      "VIX",
+      "SP500",
+      "DXY",
+      "IndProd_USA"
+    ],
+    "causal_pc": [
+      "VIX"
+    ],
+    "causal_union": [
+      "VIX",
+      "SP500",
+      "DXY",
+      "IndProd_USA"
+    ],
+    "causes": [
+      "EIA_gas_stocks",
+      "WTI_oil",
+      "Copper",
+      "ISM_PMI"
+    ],
+    "instruments": [
+      "EIA_crude_stocks"
+    ],
+    "freq": "D",
+    "file": "A_NatGas.csv"
+  },
+  "Gold": {
+    "heuristic": [
+      "Silver",
+      "DXY",
+      "Copper",
+      "Yield10Y"
+    ],
+    "causal_expert": [
+      "SP500",
+      "IndProd_USA",
+      "FedFunds"
+    ],
+    "causal_pc": [
+      "Yield10Y",
+      "Silver"
+    ],
+    "causal_union": [
+      "SP500",
+      "IndProd_USA",
+      "FedFunds",
+      "Yield10Y",
+      "Silver"
+    ],
+    "causes": [
+      "DXY",
+      "Yield10Y",
+      "VIX",
+      "InflationCPI",
+      "Silver"
+    ],
+    "instruments": [
+      "Copper"
+    ],
+    "freq": "D",
+    "file": "A_Gold.csv"
+  },
+  "EURUSD": {
+    "heuristic": [
+      "USDCHF",
+      "AUDUSD"
+    ],
+    "causal_expert": [
+      "VIX",
+      "SP500",
+      "Gold",
+      "WTI"
+    ],
+    "causal_pc": [
+      "Gold"
+    ],
+    "causal_union": [
+      "VIX",
+      "SP500",
+      "Gold",
+      "WTI"
+    ],
+    "causes": [
+      "T10Y2Y",
+      "UST_10Y",
+      "FedFunds",
+      "Trade_Balance",
+      "M2_USA"
+    ],
+    "instruments": [
+      "UST_2Y"
+    ],
+    "freq": "D",
+    "file": "B_EURUSD.csv"
+  },
+  "GBPUSD": {
+    "heuristic": [
+      "AUDUSD",
+      "USDCHF"
+    ],
+    "causal_expert": [
+      "VIX",
+      "SP500",
+      "Gold",
+      "WTI"
+    ],
+    "causal_pc": [
+      "VIX",
+      "Gold"
+    ],
+    "causal_union": [
+      "VIX",
+      "SP500",
+      "Gold",
+      "WTI"
+    ],
+    "causes": [
+      "FedFunds",
+      "T10Y2Y",
+      "Trade_Balance",
+      "M2_USA",
+      "EURUSD"
+    ],
+    "instruments": [
+      "UST_2Y"
+    ],
+    "freq": "D",
+    "file": "B_GBPUSD.csv"
+  },
+  "USDJPY": {
+    "heuristic": [
+      "USDCHF",
+      "Nikkei",
+      "AUDUSD"
+    ],
+    "causal_expert": [
+      "Gold",
+      "WTI",
+      "DXY"
+    ],
+    "causal_pc": [
+      "VIX",
+      "Gold"
+    ],
+    "causal_union": [
+      "Gold",
+      "WTI",
+      "DXY",
+      "VIX"
+    ],
+    "causes": [
+      "Yield10Y",
+      "UST_10Y",
+      "FedFunds",
+      "VIX",
+      "SP500"
+    ],
+    "instruments": [
+      "UST_2Y",
+      "T10Y2Y"
+    ],
+    "freq": "D",
+    "file": "B_USDJPY.csv"
+  },
+  "CPI": {
+    "heuristic": [
+      "PPI_MoM",
+      "PPI",
+      "PCE_core",
+      "WTI_oil",
+      "PPI_YoY",
+      "PPI_lag1",
+      "RetailSales",
+      "NFP"
+    ],
+    "causal_expert": [
+      "FedFunds",
+      "Unemployment",
+      "HousingStarts"
+    ],
+    "causal_pc": [
+      "PPI",
+      "FedFunds"
+    ],
+    "causal_union": [
+      "FedFunds",
+      "Unemployment",
+      "HousingStarts",
+      "PPI"
+    ],
+    "causes": [
+      "PPI",
+      "WTI_oil",
+      "M2",
+      "NFP",
+      "RetailSales"
+    ],
+    "instruments": [
+      "EIA_crude_stocks"
+    ],
+    "freq": "ME",
+    "file": "C_CPI.csv"
+  },
+  "IndProd": {
+    "heuristic": [
+      "Unemployment",
+      "Unemployment_lag1",
+      "M2_MoM",
+      "Unemployment_lag3",
+      "Savings_Rate",
+      "Unemployment_YoY",
+      "M2",
+      "M2_lag1"
+    ],
+    "causal_expert": [
+      "Unemployment",
+      "HousingStarts",
+      "M2"
+    ],
+    "causal_pc": [
+      "Unemployment",
+      "M2"
+    ],
+    "causal_union": [
+      "Unemployment",
+      "HousingStarts",
+      "M2"
+    ],
+    "causes": [
+      "ISM_PMI",
+      "NFP",
+      "RetailSales",
+      "WTI_oil",
+      "FedFunds"
+    ],
+    "instruments": [
+      "EIA_crude_stocks"
+    ],
+    "freq": "ME",
+    "file": "C_IndProd.csv"
+  },
+  "UMCSENT": {
+    "heuristic": [
+      "Unemployment_MoM",
+      "RetailSales",
+      "PPI_lag3",
+      "NFP",
+      "M2",
+      "NFP_MoM",
+      "M2_YoY",
+      "M2_MoM"
+    ],
+    "causal_expert": [
+      "NFP",
+      "FedFunds",
+      "Savings_Rate",
+      "CredCardDebt"
+    ],
+    "causal_pc": [
+      "RetailSales"
+    ],
+    "causal_union": [
+      "NFP",
+      "FedFunds",
+      "Savings_Rate",
+      "CredCardDebt",
+      "RetailSales"
+    ],
+    "causes": [
+      "Unemployment",
+      "CPI",
+      "RetailSales",
+      "SP500",
+      "WTI_oil"
+    ],
+    "instruments": [
+      "EIA_gas_stocks"
+    ],
+    "freq": "ME",
+    "file": "C_UMCSENT.csv"
+  },
+  "BTC": {
+    "heuristic": [
+      "BNB",
+      "XRP",
+      "SOL",
+      "NASDAQ",
+      "SP500"
+    ],
+    "causal_expert": [
+      "VIX",
+      "Gold",
+      "Yield10Y"
+    ],
+    "causal_pc": [
+      "SP500"
+    ],
+    "causal_union": [
+      "VIX",
+      "Gold",
+      "Yield10Y",
+      "SP500"
+    ],
+    "causes": [
+      "M2",
+      "DXY",
+      "SP500",
+      "ETH",
+      "BTC_Volume",
+      "FedFunds"
+    ],
+    "instruments": [
+      "BTC_DailyRange"
+    ],
+    "freq": "D",
+    "file": "D_BTC.csv"
+  },
+  "ETH": {
+    "heuristic": [
+      "BNB",
+      "SOL",
+      "XRP",
+      "NASDAQ",
+      "SP500"
+    ],
+    "causal_expert": [
+      "VIX",
+      "Gold",
+      "Yield10Y",
+      "FedFunds"
+    ],
+    "causal_pc": [
+      "DXY",
+      "SP500",
+      "ETH_DailyRange"
+    ],
+    "causal_union": [
+      "VIX",
+      "Gold",
+      "Yield10Y",
+      "FedFunds",
+      "DXY",
+      "SP500",
+      "ETH_DailyRange"
+    ],
+    "causes": [
+      "BTC",
+      "M2",
+      "DXY",
+      "SP500",
+      "ETH_Volume",
+      "SOL"
+    ],
+    "instruments": [
+      "ETH_DailyRange",
+      "BTC_DailyRange"
+    ],
+    "freq": "D",
+    "file": "D_ETH.csv"
+  }
+}

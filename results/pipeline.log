@@ -1,0 +1,2199 @@
+19:28:57 │ INFO    │ ╔══════════════════════════════════════════════════════╗
+19:28:57 │ INFO    │ ║   Каузальный пайплайн прогнозирования финансовых     ║
+19:28:57 │ INFO    │ ║   рядов: 10 активов × 4 каузальных × 4 baseline      ║
+19:28:57 │ INFO    │ ╚══════════════════════════════════════════════════════╝
+19:28:57 │ INFO    │ Проверка зависимостей:
+19:29:00 │ INFO    │   ✓ numpy
+19:29:05 │ INFO    │   ✓ pandas
+19:29:05 │ INFO    │   ✓ scipy
+19:29:10 │ INFO    │   ✓ statsmodels
+19:29:17 │ INFO    │   ✓ scikit-learn
+19:29:17 │ INFO    │   ✓ matplotlib
+19:29:17 │ INFO    │ Опциональные пакеты:
+19:29:17 │ INFO    │   ✓ causallearn
+19:29:17 │ INFO    │   ✓ econml
+19:29:19 │ INFO    │   ✓ linearmodels
+19:29:27 │ INFO    │   ✓ pmdarima
+19:29:28 │ INFO    │   ✓ prophet
+19:29:37 │ INFO    │   ✓ torch
+19:30:03 │ INFO    │   ✓ tensorflow
+19:30:04 │ INFO    │   ✓ xgboost
+19:30:04 │ INFO    │ 
+═══════════════════════════════════════════════════════
+19:30:04 │ INFO    │   ШАГ 1: Экспертные DAG и определение причин
+19:30:04 │ INFO    │ ═══════════════════════════════════════════════════════
+19:30:04 │ INFO    │   WTI_oil      │ A │ freq=D │ causes=5 │ confounders=4
+19:30:04 │ INFO    │   NatGas       │ A │ freq=D │ causes=4 │ confounders=4
+19:30:04 │ INFO    │   Gold         │ A │ freq=D │ causes=5 │ confounders=3
+19:30:04 │ INFO    │   EURUSD       │ B │ freq=D │ causes=5 │ confounders=4
+19:30:04 │ INFO    │   GBPUSD       │ B │ freq=D │ causes=5 │ confounders=4
+19:30:04 │ INFO    │   USDJPY       │ B │ freq=D │ causes=5 │ confounders=3
+19:30:04 │ INFO    │   CPI          │ C │ freq=ME │ causes=5 │ confounders=3
+19:30:04 │ INFO    │   IndProd      │ C │ freq=ME │ causes=5 │ confounders=3
+19:30:04 │ INFO    │   UMCSENT      │ C │ freq=ME │ causes=5 │ confounders=4
+19:30:04 │ INFO    │   BTC          │ D │ freq=D │ causes=6 │ confounders=3
+19:30:04 │ INFO    │   ETH          │ D │ freq=D │ causes=6 │ confounders=4
+19:30:04 │ INFO    │ 
+═══════════════════════════════════════════════════════
+19:30:04 │ INFO    │   ШАГ 2: Отбор контрольных переменных
+19:30:04 │ INFO    │ ═══════════════════════════════════════════════════════
+19:30:04 │ INFO    │ 
+── WTI Crude Oil (WTI_oil) ──
+19:30:07 │ INFO    │   Heuristic [WTI_oil]: 4 переменных (топ: ['Brent', 'Copper', 'Yield10Y'])
+19:30:07 │ INFO    │   Expert backdoor [WTI_oil]: ['VIX', 'SP500', 'Yield10Y', 'IndProd_USA']
+19:30:09 │ INFO    │   PC algorithm [WTI_oil]: 7 переменных, n=4029
+19:30:09 │ INFO    │   PC result [WTI_oil]: ['Brent']
+19:30:09 │ INFO    │   → Heuristic: ['Brent', 'Copper', 'Yield10Y', 'SP500']
+19:30:09 │ INFO    │   → Causal (expert):  ['VIX', 'SP500', 'Yield10Y', 'IndProd_USA']
+19:30:09 │ INFO    │   → Causal (PC):      ['Brent']
+19:30:09 │ INFO    │ 
+── Natural Gas (Henry Hub) (NatGas) ──
+19:30:12 │ INFO    │   Heuristic [NatGas]: 0 переменных (топ: [])
+19:30:12 │ INFO    │   Expert backdoor [NatGas]: ['VIX', 'SP500', 'DXY', 'IndProd_USA']
+19:30:12 │ INFO    │   PC algorithm [NatGas]: 6 переменных, n=4030
+19:30:12 │ INFO    │   PC result [NatGas]: ['VIX']
+19:30:12 │ INFO    │   → Heuristic: []
+19:30:12 │ INFO    │   → Causal (expert):  ['VIX', 'SP500', 'DXY', 'IndProd_USA']
+19:30:12 │ INFO    │   → Causal (PC):      ['VIX']
+19:30:12 │ INFO    │ 
+── Gold (Gold) ──
+19:30:15 │ INFO    │   Heuristic [Gold]: 4 переменных (топ: ['Silver', 'DXY', 'Copper'])
+19:30:15 │ INFO    │   Expert backdoor [Gold]: ['SP500', 'IndProd_USA', 'FedFunds']
+19:30:15 │ INFO    │   PC algorithm [Gold]: 9 переменных, n=4029
+19:30:15 │ INFO    │   PC result [Gold]: ['Yield10Y', 'Silver']
+19:30:15 │ INFO    │   → Heuristic: ['Silver', 'DXY', 'Copper', 'Yield10Y']
+19:30:15 │ INFO    │   → Causal (expert):  ['SP500', 'IndProd_USA', 'FedFunds']
+19:30:15 │ INFO    │   → Causal (PC):      ['Yield10Y', 'Silver']
+19:30:15 │ INFO    │ 
+── EUR/USD (EURUSD) ──
+19:30:18 │ INFO    │   Heuristic [EURUSD]: 2 переменных (топ: ['USDCHF', 'AUDUSD'])
+19:30:18 │ INFO    │   Expert backdoor [EURUSD]: ['VIX', 'SP500', 'Gold', 'WTI']
+19:30:18 │ INFO    │   PC algorithm [EURUSD]: 10 переменных, n=4176
+19:30:18 │ INFO    │   PC result [EURUSD]: ['Gold']
+19:30:18 │ INFO    │   → Heuristic: ['USDCHF', 'AUDUSD']
+19:30:18 │ INFO    │   → Causal (expert):  ['VIX', 'SP500', 'Gold', 'WTI']
+19:30:18 │ INFO    │   → Causal (PC):      ['Gold']
+19:30:18 │ INFO    │ 
+── GBP/USD (GBPUSD) ──
+19:30:21 │ INFO    │   Heuristic [GBPUSD]: 2 переменных (топ: ['AUDUSD', 'USDCHF'])
+19:30:21 │ INFO    │   Expert backdoor [GBPUSD]: ['VIX', 'SP500', 'Gold', 'WTI']
+19:30:21 │ INFO    │   PC algorithm [GBPUSD]: 9 переменных, n=4176
+19:30:21 │ INFO    │   PC result [GBPUSD]: ['VIX', 'Gold']
+19:30:21 │ INFO    │   → Heuristic: ['AUDUSD', 'USDCHF']
+19:30:21 │ INFO    │   → Causal (expert):  ['VIX', 'SP500', 'Gold', 'WTI']
+19:30:21 │ INFO    │   → Causal (PC):      ['VIX', 'Gold']
+19:30:21 │ INFO    │ 
+── USD/JPY (USDJPY) ──
+19:30:25 │ INFO    │   Heuristic [USDJPY]: 3 переменных (топ: ['USDCHF', 'Nikkei', 'AUDUSD'])
+19:30:25 │ INFO    │   Expert backdoor [USDJPY]: ['Gold', 'WTI', 'DXY']
+19:30:25 │ INFO    │   PC algorithm [USDJPY]: 10 переменных, n=4176
+19:30:25 │ INFO    │   PC result [USDJPY]: ['VIX', 'Gold']
+19:30:25 │ INFO    │   → Heuristic: ['USDCHF', 'Nikkei', 'AUDUSD']
+19:30:25 │ INFO    │   → Causal (expert):  ['Gold', 'WTI', 'DXY']
+19:30:25 │ INFO    │   → Causal (PC):      ['VIX', 'Gold']
+19:30:25 │ INFO    │ 
+── US CPI Inflation (CPI) ──
+19:30:25 │ INFO    │   Heuristic [CPI]: 8 переменных (топ: ['PPI_MoM', 'PPI', 'PCE_core'])
+19:30:25 │ INFO    │   Expert backdoor [CPI]: ['FedFunds', 'Unemployment', 'HousingStarts']
+19:30:25 │ INFO    │   PC algorithm [CPI]: 9 переменных, n=183
+19:30:25 │ INFO    │   PC result [CPI]: ['PPI', 'FedFunds']
+19:30:25 │ INFO    │   → Heuristic: ['PPI_MoM', 'PPI', 'PCE_core', 'WTI_oil', 'PPI_YoY', 'PPI_lag1', 'RetailSales', 'NFP']
+19:30:25 │ INFO    │   → Causal (expert):  ['FedFunds', 'Unemployment', 'HousingStarts']
+19:30:25 │ INFO    │   → Causal (PC):      ['PPI', 'FedFunds']
+19:30:25 │ INFO    │ 
+── Industrial Production (IndProd) ──
+19:30:25 │ INFO    │   Heuristic [IndProd]: 8 переменных (топ: ['Unemployment', 'Unemployment_lag1', 'M2_MoM'])
+19:30:25 │ INFO    │   Expert backdoor [IndProd]: ['Unemployment', 'HousingStarts', 'M2']
+19:30:25 │ INFO    │   PC algorithm [IndProd]: 8 переменных, n=183
+19:30:25 │ INFO    │   PC result [IndProd]: ['Unemployment', 'M2']
+19:30:25 │ INFO    │   → Heuristic: ['Unemployment', 'Unemployment_lag1', 'M2_MoM', 'Unemployment_lag3', 'Savings_Rate', 'Unemployment_YoY', 'M2', 'M2_lag1']
+19:30:25 │ INFO    │   → Causal (expert):  ['Unemployment', 'HousingStarts', 'M2']
+19:30:25 │ INFO    │   → Causal (PC):      ['Unemployment', 'M2']
+19:30:25 │ INFO    │ 
+── Michigan Consumer Sentiment (UMCSENT) ──
+19:30:25 │ INFO    │   Heuristic [UMCSENT]: 8 переменных (топ: ['Unemployment_MoM', 'RetailSales', 'PPI_lag3'])
+19:30:25 │ INFO    │   Expert backdoor [UMCSENT]: ['NFP', 'FedFunds', 'Savings_Rate', 'CredCardDebt']
+19:30:25 │ INFO    │   PC algorithm [UMCSENT]: 8 переменных, n=183
+19:30:25 │ INFO    │   PC result [UMCSENT]: ['RetailSales']
+19:30:25 │ INFO    │   → Heuristic: ['Unemployment_MoM', 'RetailSales', 'PPI_lag3', 'NFP', 'M2', 'NFP_MoM', 'M2_YoY', 'M2_MoM']
+19:30:25 │ INFO    │   → Causal (expert):  ['NFP', 'FedFunds', 'Savings_Rate', 'CredCardDebt']
+19:30:25 │ INFO    │   → Causal (PC):      ['RetailSales']
+19:30:25 │ INFO    │ 
+── Bitcoin (BTC) ──
+19:30:29 │ INFO    │   Heuristic [BTC]: 5 переменных (топ: ['BNB', 'XRP', 'SOL'])
+19:30:29 │ INFO    │   Expert backdoor [BTC]: ['VIX', 'Gold', 'Yield10Y']
+19:30:29 │ INFO    │   PC algorithm [BTC]: 9 переменных, n=2185
+19:30:29 │ INFO    │   PC result [BTC]: ['SP500']
+19:30:29 │ INFO    │   → Heuristic: ['BNB', 'XRP', 'SOL', 'NASDAQ', 'SP500']
+19:30:29 │ INFO    │   → Causal (expert):  ['VIX', 'Gold', 'Yield10Y']
+19:30:29 │ INFO    │   → Causal (PC):      ['SP500']
+19:30:29 │ INFO    │ 
+── Ethereum (ETH) ──
+19:30:31 │ INFO    │   Heuristic [ETH]: 5 переменных (топ: ['BNB', 'SOL', 'XRP'])
+19:30:31 │ INFO    │   Expert backdoor [ETH]: ['VIX', 'Gold', 'Yield10Y', 'FedFunds']
+19:30:31 │ INFO    │   PC algorithm [ETH]: 10 переменных, n=2185
+19:30:31 │ INFO    │   PC result [ETH]: ['DXY', 'SP500', 'ETH_DailyRange']
+19:30:31 │ INFO    │   → Heuristic: ['BNB', 'SOL', 'XRP', 'NASDAQ', 'SP500']
+19:30:31 │ INFO    │   → Causal (expert):  ['VIX', 'Gold', 'Yield10Y', 'FedFunds']
+19:30:31 │ INFO    │   → Causal (PC):      ['DXY', 'SP500', 'ETH_DailyRange']
+19:30:31 │ INFO    │ 
+✓ Результаты сохранены: results\step2_variable_selection.json
+19:30:31 │ INFO    │ 
+═══════════════════════════════════════════════════════
+19:30:31 │ INFO    │   ШАГ 3: Каузальные модели прогнозирования
+19:30:31 │ INFO    │ ═══════════════════════════════════════════════════════
+19:30:32 │ INFO    │ 
+════════════════════════════════════════════════════════════
+19:30:32 │ INFO    │   КАУЗАЛЬНЫЕ МОДЕЛИ: WTI Crude Oil (WTI_oil)  [freq=D]
+19:30:32 │ INFO    │ ════════════════════════════════════════════════════════════
+19:30:35 │ INFO    │ 
+  ▸ controls_heuristic: ['Brent', 'Copper', 'Yield10Y', 'SP500']
+19:30:35 │ INFO    │     horizon=1 | controls=controls_heuristic
+19:30:35 │ INFO    │   [CausalImpact] WTI_oil
+19:30:35 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:30:35 │ INFO    │     BSTS_proxy(h=1): RMSE=1.7317  MAE=1.2469  MAPE=52462173.78%  R²=-0.0847
+19:30:35 │ INFO    │   [DML] WTI_oil
+19:30:40 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2145, 2) instead.. Использую ручной DML.
+19:30:43 │ INFO    │     DML_manual: RMSE=2.0812  MAE=1.3376  MAPE=170841839.80%  R²=-0.4730
+19:30:43 │ INFO    │   [VAR+Granger] WTI_oil
+19:30:43 │ INFO    │     Granger значимых: 3/5
+19:30:43 │ INFO    │     {'Brent': np.float64(0.0), 'DXY': np.float64(0.2836), 'Copper': np.float64(0.0), 'Yield10Y': np.float64(0.7725), 'SP500': np.float64(0.0)}
+19:30:43 │ INFO    │     VAR(lag=6): RMSE=1.7916  MAE=1.2564  MAPE=189953021.70%  R²=-0.0929
+19:30:43 │ INFO    │   [IV-2SLS] WTI_oil
+19:30:43 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:30:43 │ INFO    │     2SLS_manual: RMSE=1.7110  MAE=1.2118  MAPE=46452704.14%  R²=0.0045
+19:30:43 │ INFO    │     horizon=5 | controls=controls_heuristic
+19:30:43 │ INFO    │   [CausalImpact] WTI_oil
+19:30:43 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:30:44 │ INFO    │     BSTS_proxy(h=5): RMSE=1.7149  MAE=1.2422  MAPE=58544443.06%  R²=-0.0782
+19:30:44 │ INFO    │   [DML] WTI_oil
+19:30:44 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2143, 2) instead.. Использую ручной DML.
+19:30:46 │ INFO    │     DML_manual: RMSE=1.9021  MAE=1.3025  MAPE=170226387.20%  R²=-0.2300
+19:30:46 │ INFO    │   [VAR+Granger] WTI_oil
+19:30:47 │ INFO    │     Granger значимых: 3/5
+19:30:47 │ INFO    │     {'Brent': np.float64(0.0), 'DXY': np.float64(0.2836), 'Copper': np.float64(0.0), 'Yield10Y': np.float64(0.7725), 'SP500': np.float64(0.0)}
+19:30:47 │ INFO    │     VAR(lag=6): RMSE=1.7121  MAE=1.2173  MAPE=78009014.65%  R²=0.0020
+19:30:47 │ INFO    │   [IV-2SLS] WTI_oil
+19:30:47 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:30:47 │ INFO    │     2SLS_manual: RMSE=1.7221  MAE=1.2166  MAPE=112751662.38%  R²=-0.0085
+19:30:47 │ INFO    │     horizon=21 | controls=controls_heuristic
+19:30:47 │ INFO    │   [CausalImpact] WTI_oil
+19:30:47 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:30:47 │ INFO    │     BSTS_proxy(h=21): RMSE=1.4740  MAE=1.1412  MAPE=57375033.42%  R²=-0.0488
+19:30:47 │ INFO    │   [DML] WTI_oil
+19:30:47 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2134, 2) instead.. Использую ручной DML.
+19:30:50 │ INFO    │     DML_manual: RMSE=1.7876  MAE=1.2505  MAPE=110266084.47%  R²=-0.0836
+19:30:50 │ INFO    │   [VAR+Granger] WTI_oil
+19:30:50 │ INFO    │     Granger значимых: 3/5
+19:30:50 │ INFO    │     {'Brent': np.float64(0.0), 'DXY': np.float64(0.2836), 'Copper': np.float64(0.0), 'Yield10Y': np.float64(0.7725), 'SP500': np.float64(0.0)}
+19:30:50 │ INFO    │     VAR(lag=6): RMSE=1.7142  MAE=1.2116  MAPE=656176.32%  R²=-0.0005
+19:30:50 │ INFO    │   [IV-2SLS] WTI_oil
+19:30:50 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:30:50 │ INFO    │     2SLS_manual: RMSE=1.7208  MAE=1.2158  MAPE=50751528.89%  R²=-0.0041
+19:30:50 │ INFO    │ 
+  ▸ controls_causal_expert: ['VIX', 'SP500', 'Yield10Y', 'IndProd_USA']
+19:30:50 │ INFO    │     horizon=1 | controls=controls_causal_expert
+19:30:50 │ INFO    │   [CausalImpact] WTI_oil
+19:30:50 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:30:51 │ INFO    │     BSTS_proxy(h=1): RMSE=1.6847  MAE=1.2170  MAPE=67819216.88%  R²=-0.0267
+19:30:51 │ INFO    │   [DML] WTI_oil
+19:30:51 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2145, 2) instead.. Использую ручной DML.
+19:30:54 │ INFO    │     DML_manual: RMSE=1.8374  MAE=1.2756  MAPE=112917212.66%  R²=-0.1481
+19:30:54 │ INFO    │   [VAR+Granger] WTI_oil
+19:30:54 │ INFO    │     Granger значимых: 4/6
+19:30:54 │ INFO    │     {'Brent': np.float64(0.0), 'DXY': np.float64(0.2836), 'VIX': np.float64(0.0002), 'SP500': np.float64(0.0), 'Yield10Y': np.float64(0.7725)}
+19:30:54 │ INFO    │     VAR(lag=6): RMSE=1.7686  MAE=1.2266  MAPE=141074943.02%  R²=-0.0650
+19:30:54 │ INFO    │   [IV-2SLS] WTI_oil
+19:30:54 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:30:54 │ INFO    │     2SLS_manual: RMSE=1.7127  MAE=1.2124  MAPE=45895921.47%  R²=0.0025
+19:30:54 │ INFO    │     horizon=5 | controls=controls_causal_expert
+19:30:54 │ INFO    │   [CausalImpact] WTI_oil
+19:30:54 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:30:55 │ INFO    │     BSTS_proxy(h=5): RMSE=1.6723  MAE=1.2077  MAPE=72120107.10%  R²=-0.0253
+19:30:55 │ INFO    │   [DML] WTI_oil
+19:30:55 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2143, 2) instead.. Использую ручной DML.
+19:30:58 │ INFO    │     DML_manual: RMSE=1.8267  MAE=1.2493  MAPE=64197268.57%  R²=-0.1344
+19:30:58 │ INFO    │   [VAR+Granger] WTI_oil
+19:30:58 │ INFO    │     Granger значимых: 4/6
+19:30:58 │ INFO    │     {'Brent': np.float64(0.0), 'DXY': np.float64(0.2836), 'VIX': np.float64(0.0002), 'SP500': np.float64(0.0), 'Yield10Y': np.float64(0.7725)}
+19:30:58 │ INFO    │     VAR(lag=6): RMSE=1.7049  MAE=1.2151  MAPE=54621953.87%  R²=0.0103
+19:30:58 │ INFO    │   [IV-2SLS] WTI_oil
+19:30:58 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:30:58 │ INFO    │     2SLS_manual: RMSE=1.7205  MAE=1.2132  MAPE=119038357.94%  R²=-0.0066
+19:30:58 │ INFO    │     horizon=21 | controls=controls_causal_expert
+19:30:58 │ INFO    │   [CausalImpact] WTI_oil
+19:30:58 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:30:58 │ INFO    │     BSTS_proxy(h=21): RMSE=1.4437  MAE=1.1202  MAPE=49136731.35%  R²=-0.0062
+19:30:58 │ INFO    │   [DML] WTI_oil
+19:30:58 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2134, 2) instead.. Использую ручной DML.
+19:31:02 │ INFO    │     DML_manual: RMSE=1.7948  MAE=1.2552  MAPE=40128288.55%  R²=-0.0923
+19:31:02 │ INFO    │   [VAR+Granger] WTI_oil
+19:31:02 │ INFO    │     Granger значимых: 4/6
+19:31:02 │ INFO    │     {'Brent': np.float64(0.0), 'DXY': np.float64(0.2836), 'VIX': np.float64(0.0002), 'SP500': np.float64(0.0), 'Yield10Y': np.float64(0.7725)}
+19:31:02 │ INFO    │     VAR(lag=6): RMSE=1.7155  MAE=1.2124  MAPE=18556101.29%  R²=-0.0020
+19:31:02 │ INFO    │   [IV-2SLS] WTI_oil
+19:31:02 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:31:02 │ INFO    │     2SLS_manual: RMSE=1.7215  MAE=1.2175  MAPE=44503283.15%  R²=-0.0049
+19:31:02 │ INFO    │ 
+  ▸ controls_causal_pc: ['Brent']
+19:31:02 │ INFO    │     horizon=1 | controls=controls_causal_pc
+19:31:02 │ INFO    │   [CausalImpact] WTI_oil
+19:31:02 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:31:02 │ INFO    │     BSTS_proxy(h=1): RMSE=1.7275  MAE=1.2442  MAPE=5467078.74%  R²=-0.0794
+19:31:02 │ INFO    │   [DML] WTI_oil
+19:31:02 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2145, 2) instead.. Использую ручной DML.
+19:31:03 │ INFO    │     DML_manual: RMSE=1.8238  MAE=1.2517  MAPE=250445951.57%  R²=-0.1311
+19:31:03 │ INFO    │   [VAR+Granger] WTI_oil
+19:31:04 │ INFO    │     Granger значимых: 1/2
+19:31:04 │ INFO    │     {'Brent': np.float64(0.0), 'DXY': np.float64(0.2836)}
+19:31:04 │ INFO    │     VAR(lag=5): RMSE=1.7781  MAE=1.2127  MAPE=92572943.11%  R²=-0.0765
+19:31:04 │ INFO    │   [IV-2SLS] WTI_oil
+19:31:04 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:31:04 │ INFO    │     2SLS_manual: RMSE=1.7127  MAE=1.2123  MAPE=44473080.96%  R²=0.0025
+19:31:04 │ INFO    │     horizon=5 | controls=controls_causal_pc
+19:31:04 │ INFO    │   [CausalImpact] WTI_oil
+19:31:04 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:31:04 │ INFO    │     BSTS_proxy(h=5): RMSE=1.7145  MAE=1.2348  MAPE=5376050.77%  R²=-0.0777
+19:31:04 │ INFO    │   [DML] WTI_oil
+19:31:04 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2143, 2) instead.. Использую ручной DML.
+19:31:05 │ INFO    │     DML_manual: RMSE=1.8413  MAE=1.2661  MAPE=511773986.02%  R²=-0.1526
+19:31:05 │ INFO    │   [VAR+Granger] WTI_oil
+19:31:05 │ INFO    │     Granger значимых: 1/2
+19:31:05 │ INFO    │     {'Brent': np.float64(0.0), 'DXY': np.float64(0.2836)}
+19:31:05 │ INFO    │     VAR(lag=5): RMSE=1.7076  MAE=1.2139  MAPE=19017936.28%  R²=0.0072
+19:31:05 │ INFO    │   [IV-2SLS] WTI_oil
+19:31:05 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:31:05 │ INFO    │     2SLS_manual: RMSE=1.7206  MAE=1.2131  MAPE=122461851.12%  R²=-0.0068
+19:31:05 │ INFO    │     horizon=21 | controls=controls_causal_pc
+19:31:05 │ INFO    │   [CausalImpact] WTI_oil
+19:31:05 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:31:06 │ INFO    │     BSTS_proxy(h=21): RMSE=1.4677  MAE=1.1373  MAPE=3292109.38%  R²=-0.0400
+19:31:06 │ INFO    │   [DML] WTI_oil
+19:31:06 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2134, 2) instead.. Использую ручной DML.
+19:31:07 │ INFO    │     DML_manual: RMSE=1.7458  MAE=1.2281  MAPE=99310967.54%  R²=-0.0334
+19:31:07 │ INFO    │   [VAR+Granger] WTI_oil
+19:31:07 │ INFO    │     Granger значимых: 1/2
+19:31:07 │ INFO    │     {'Brent': np.float64(0.0), 'DXY': np.float64(0.2836)}
+19:31:07 │ INFO    │     VAR(lag=5): RMSE=1.7142  MAE=1.2116  MAPE=658160.28%  R²=-0.0005
+19:31:07 │ INFO    │   [IV-2SLS] WTI_oil
+19:31:07 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:31:07 │ INFO    │     2SLS_manual: RMSE=1.7209  MAE=1.2169  MAPE=41566611.23%  R²=-0.0042
+19:31:07 │ INFO    │ 
+════════════════════════════════════════════════════════════
+19:31:07 │ INFO    │   КАУЗАЛЬНЫЕ МОДЕЛИ: Natural Gas (Henry Hub) (NatGas)  [freq=D]
+19:31:07 │ INFO    │ ════════════════════════════════════════════════════════════
+19:31:10 │ INFO    │ 
+  ▸ controls_heuristic: []
+19:31:10 │ INFO    │     horizon=1 | controls=controls_heuristic
+19:31:10 │ INFO    │   [CausalImpact] NatGas
+19:31:10 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:31:10 │ INFO    │     BSTS_proxy(h=1): RMSE=0.8966  MAE=0.7430  MAPE=29.89%  R²=-0.4125
+19:31:10 │ INFO    │   [DML] NatGas
+19:31:14 │ INFO    │     DML_EconML: RMSE=0.2720  MAE=0.1617  MAPE=5.30%  R²=0.8699
+19:31:14 │ INFO    │   [VAR+Granger] NatGas
+19:31:14 │ INFO    │     Granger значимых: 0/1
+19:31:14 │ INFO    │     {'Copper': np.float64(0.1024)}
+19:31:14 │ INFO    │     Используем топ-3 по p-value: ['Copper']
+19:31:14 │ INFO    │     VAR(lag=2): RMSE=0.1994  MAE=0.1107  MAPE=3.67%  R²=0.9301
+19:31:14 │ INFO    │   [IV-2SLS] NatGas
+19:31:14 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:31:14 │ INFO    │     2SLS_manual: RMSE=0.2692  MAE=0.1562  MAPE=5.14%  R²=0.8726
+19:31:14 │ INFO    │     horizon=5 | controls=controls_heuristic
+19:31:14 │ INFO    │   [CausalImpact] NatGas
+19:31:14 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:31:15 │ INFO    │     BSTS_proxy(h=5): RMSE=0.7735  MAE=0.6113  MAPE=23.27%  R²=-0.0462
+19:31:15 │ INFO    │   [DML] NatGas
+19:31:18 │ INFO    │     DML_EconML: RMSE=0.4527  MAE=0.2831  MAPE=9.23%  R²=0.6400
+19:31:18 │ INFO    │   [VAR+Granger] NatGas
+19:31:18 │ INFO    │     Granger значимых: 0/1
+19:31:18 │ INFO    │     {'Copper': np.float64(0.1024)}
+19:31:18 │ INFO    │     Используем топ-3 по p-value: ['Copper']
+19:31:18 │ INFO    │     VAR(lag=2): RMSE=0.1989  MAE=0.1125  MAPE=3.76%  R²=0.9304
+19:31:18 │ INFO    │   [IV-2SLS] NatGas
+19:31:18 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:31:18 │ INFO    │     2SLS_manual: RMSE=0.4559  MAE=0.2750  MAPE=8.99%  R²=0.6346
+19:31:18 │ INFO    │     horizon=21 | controls=controls_heuristic
+19:31:18 │ INFO    │   [CausalImpact] NatGas
+19:31:18 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:31:19 │ INFO    │     BSTS_proxy(h=21): RMSE=1.1315  MAE=0.8896  MAPE=26.94%  R²=-1.1961
+19:31:19 │ INFO    │   [DML] NatGas
+19:31:23 │ INFO    │     DML_EconML: RMSE=0.6722  MAE=0.4675  MAPE=16.25%  R²=0.2093
+19:31:23 │ INFO    │   [VAR+Granger] NatGas
+19:31:23 │ INFO    │     Granger значимых: 0/1
+19:31:23 │ INFO    │     {'Copper': np.float64(0.1024)}
+19:31:23 │ INFO    │     Используем топ-3 по p-value: ['Copper']
+19:31:23 │ INFO    │     VAR(lag=2): RMSE=0.2132  MAE=0.1395  MAPE=5.00%  R²=0.9200
+19:31:23 │ INFO    │   [IV-2SLS] NatGas
+19:31:23 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:31:23 │ INFO    │     2SLS_manual: RMSE=0.6297  MAE=0.4339  MAPE=15.23%  R²=0.3054
+19:31:23 │ INFO    │ 
+  ▸ controls_causal_expert: ['VIX', 'SP500', 'DXY', 'IndProd_USA']
+19:31:23 │ INFO    │     horizon=1 | controls=controls_causal_expert
+19:31:23 │ INFO    │   [CausalImpact] NatGas
+19:31:23 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:31:24 │ INFO    │     BSTS_proxy(h=1): RMSE=0.8999  MAE=0.7472  MAPE=30.08%  R²=-0.4229
+19:31:24 │ INFO    │   [DML] NatGas
+19:31:32 │ INFO    │     DML_EconML: RMSE=0.2664  MAE=0.1594  MAPE=5.26%  R²=0.8752
+19:31:32 │ INFO    │   [VAR+Granger] NatGas
+19:31:33 │ INFO    │     Granger значимых: 1/5
+19:31:33 │ INFO    │     {'Copper': np.float64(0.1024), 'VIX': np.float64(0.3388), 'SP500': np.float64(0.0022), 'DXY': np.float64(0.2301), 'IndProd_USA': np.float64(0.6657)}
+19:31:33 │ INFO    │     VAR(lag=6): RMSE=0.2017  MAE=0.1115  MAPE=3.70%  R²=0.9285
+19:31:33 │ INFO    │   [IV-2SLS] NatGas
+19:31:33 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:31:33 │ INFO    │     2SLS_manual: RMSE=0.2690  MAE=0.1560  MAPE=5.14%  R²=0.8727
+19:31:33 │ INFO    │     horizon=5 | controls=controls_causal_expert
+19:31:33 │ INFO    │   [CausalImpact] NatGas
+19:31:33 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:31:33 │ INFO    │     BSTS_proxy(h=5): RMSE=0.7778  MAE=0.6166  MAPE=23.54%  R²=-0.0577
+19:31:33 │ INFO    │   [DML] NatGas
+19:31:42 │ INFO    │     DML_EconML: RMSE=0.4894  MAE=0.2885  MAPE=9.38%  R²=0.5793
+19:31:42 │ INFO    │   [VAR+Granger] NatGas
+19:31:42 │ INFO    │     Granger значимых: 1/5
+19:31:42 │ INFO    │     {'Copper': np.float64(0.1024), 'VIX': np.float64(0.3388), 'SP500': np.float64(0.0022), 'DXY': np.float64(0.2301), 'IndProd_USA': np.float64(0.6657)}
+19:31:42 │ INFO    │     VAR(lag=6): RMSE=0.2053  MAE=0.1196  MAPE=4.03%  R²=0.9259
+19:31:42 │ INFO    │   [IV-2SLS] NatGas
+19:31:42 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:31:42 │ INFO    │     2SLS_manual: RMSE=0.4559  MAE=0.2751  MAPE=9.00%  R²=0.6346
+19:31:42 │ INFO    │     horizon=21 | controls=controls_causal_expert
+19:31:42 │ INFO    │   [CausalImpact] NatGas
+19:31:42 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:31:43 │ INFO    │     BSTS_proxy(h=21): RMSE=1.1349  MAE=0.8940  MAPE=27.08%  R²=-1.2093
+19:31:43 │ INFO    │   [DML] NatGas
+19:31:52 │ INFO    │     DML_EconML: RMSE=0.7546  MAE=0.5516  MAPE=19.16%  R²=0.0035
+19:31:52 │ INFO    │   [VAR+Granger] NatGas
+19:31:52 │ INFO    │     Granger значимых: 1/5
+19:31:52 │ INFO    │     {'Copper': np.float64(0.1024), 'VIX': np.float64(0.3388), 'SP500': np.float64(0.0022), 'DXY': np.float64(0.2301), 'IndProd_USA': np.float64(0.6657)}
+19:31:52 │ INFO    │     VAR(lag=6): RMSE=0.2187  MAE=0.1437  MAPE=5.14%  R²=0.9158
+19:31:52 │ INFO    │   [IV-2SLS] NatGas
+19:31:52 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:31:52 │ INFO    │     2SLS_manual: RMSE=0.6290  MAE=0.4322  MAPE=15.14%  R²=0.3069
+19:31:52 │ INFO    │ 
+  ▸ controls_causal_pc: ['VIX']
+19:31:52 │ INFO    │     horizon=1 | controls=controls_causal_pc
+19:31:52 │ INFO    │   [CausalImpact] NatGas
+19:31:52 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:31:52 │ INFO    │     BSTS_proxy(h=1): RMSE=0.9013  MAE=0.7478  MAPE=30.10%  R²=-0.4275
+19:31:52 │ INFO    │   [DML] NatGas
+19:31:58 │ INFO    │     DML_EconML: RMSE=0.2658  MAE=0.1608  MAPE=5.30%  R²=0.8758
+19:31:58 │ INFO    │   [VAR+Granger] NatGas
+19:31:58 │ INFO    │     Granger значимых: 0/2
+19:31:58 │ INFO    │     {'Copper': np.float64(0.1024), 'VIX': np.float64(0.3388)}
+19:31:58 │ INFO    │     Используем топ-3 по p-value: ['Copper', 'VIX']
+19:31:58 │ INFO    │     VAR(lag=5): RMSE=0.2004  MAE=0.1109  MAPE=3.67%  R²=0.9294
+19:31:58 │ INFO    │   [IV-2SLS] NatGas
+19:31:58 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:31:58 │ INFO    │     2SLS_manual: RMSE=0.2690  MAE=0.1560  MAPE=5.14%  R²=0.8727
+19:31:58 │ INFO    │     horizon=5 | controls=controls_causal_pc
+19:31:58 │ INFO    │   [CausalImpact] NatGas
+19:31:58 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:31:58 │ INFO    │     BSTS_proxy(h=5): RMSE=0.7764  MAE=0.6149  MAPE=23.44%  R²=-0.0541
+19:31:58 │ INFO    │   [DML] NatGas
+19:32:04 │ INFO    │     DML_EconML: RMSE=0.4557  MAE=0.2825  MAPE=9.30%  R²=0.6352
+19:32:04 │ INFO    │   [VAR+Granger] NatGas
+19:32:04 │ INFO    │     Granger значимых: 0/2
+19:32:04 │ INFO    │     {'Copper': np.float64(0.1024), 'VIX': np.float64(0.3388)}
+19:32:04 │ INFO    │     Используем топ-3 по p-value: ['Copper', 'VIX']
+19:32:04 │ INFO    │     VAR(lag=5): RMSE=0.1993  MAE=0.1123  MAPE=3.77%  R²=0.9301
+19:32:04 │ INFO    │   [IV-2SLS] NatGas
+19:32:04 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:32:04 │ INFO    │     2SLS_manual: RMSE=0.4559  MAE=0.2751  MAPE=9.00%  R²=0.6346
+19:32:04 │ INFO    │     horizon=21 | controls=controls_causal_pc
+19:32:04 │ INFO    │   [CausalImpact] NatGas
+19:32:04 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:32:04 │ INFO    │     BSTS_proxy(h=21): RMSE=1.1298  MAE=0.8883  MAPE=26.90%  R²=-1.1894
+19:32:04 │ INFO    │   [DML] NatGas
+19:32:09 │ INFO    │     DML_EconML: RMSE=0.6388  MAE=0.4598  MAPE=16.21%  R²=0.2858
+19:32:09 │ INFO    │   [VAR+Granger] NatGas
+19:32:09 │ INFO    │     Granger значимых: 0/2
+19:32:09 │ INFO    │     {'Copper': np.float64(0.1024), 'VIX': np.float64(0.3388)}
+19:32:09 │ INFO    │     Используем топ-3 по p-value: ['Copper', 'VIX']
+19:32:10 │ INFO    │     VAR(lag=5): RMSE=0.2149  MAE=0.1413  MAPE=5.10%  R²=0.9187
+19:32:10 │ INFO    │   [IV-2SLS] NatGas
+19:32:10 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:32:10 │ INFO    │     2SLS_manual: RMSE=0.6290  MAE=0.4322  MAPE=15.14%  R²=0.3069
+19:32:10 │ INFO    │ 
+════════════════════════════════════════════════════════════
+19:32:10 │ INFO    │   КАУЗАЛЬНЫЕ МОДЕЛИ: Gold (Gold)  [freq=D]
+19:32:10 │ INFO    │ ════════════════════════════════════════════════════════════
+19:32:12 │ INFO    │ 
+  ▸ controls_heuristic: ['Silver', 'DXY', 'Copper', 'Yield10Y']
+19:32:12 │ INFO    │     horizon=1 | controls=controls_heuristic
+19:32:12 │ INFO    │   [CausalImpact] Gold
+19:32:12 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:32:13 │ INFO    │     BSTS_proxy(h=1): RMSE=48.4472  MAE=26.7238  MAPE=99278717.08%  R²=-0.0594
+19:32:13 │ INFO    │   [DML] Gold
+19:32:13 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2145, 5) instead.. Использую ручной DML.
+19:32:18 │ INFO    │     DML_manual: RMSE=48.3699  MAE=27.8085  MAPE=2371752431.91%  R²=-0.0519
+19:32:18 │ INFO    │   [VAR+Granger] Gold
+19:32:18 │ INFO    │     Granger значимых: 3/6
+19:32:18 │ INFO    │     {'DXY': np.float64(0.0009), 'Yield10Y': np.float64(0.0), 'VIX': np.float64(0.0011), 'InflationCPI': np.float64(0.4044), 'Silver': np.float64(0.5207)}
+19:32:18 │ INFO    │     VAR(lag=5): RMSE=47.2202  MAE=26.7859  MAPE=678939543.00%  R²=-0.0037
+19:32:18 │ INFO    │   [IV-2SLS] Gold
+19:32:18 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:32:18 │ INFO    │     2SLS_manual: RMSE=47.2108  MAE=26.6847  MAPE=391737847.61%  R²=-0.0021
+19:32:18 │ INFO    │     horizon=5 | controls=controls_heuristic
+19:32:18 │ INFO    │   [CausalImpact] Gold
+19:32:18 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:32:19 │ INFO    │     BSTS_proxy(h=5): RMSE=46.8391  MAE=26.1936  MAPE=65398396.56%  R²=-0.0110
+19:32:19 │ INFO    │   [DML] Gold
+19:32:19 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2143, 5) instead.. Использую ручной DML.
+19:32:23 │ INFO    │     DML_manual: RMSE=48.0858  MAE=27.0482  MAPE=1243345532.35%  R²=-0.0383
+19:32:23 │ INFO    │   [VAR+Granger] Gold
+19:32:23 │ INFO    │     Granger значимых: 3/6
+19:32:23 │ INFO    │     {'DXY': np.float64(0.0009), 'Yield10Y': np.float64(0.0), 'VIX': np.float64(0.0011), 'InflationCPI': np.float64(0.4044), 'Silver': np.float64(0.5207)}
+19:32:24 │ INFO    │     VAR(lag=5): RMSE=47.2315  MAE=26.5884  MAPE=48467646.14%  R²=-0.0042
+19:32:24 │ INFO    │   [IV-2SLS] Gold
+19:32:24 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:32:24 │ INFO    │     2SLS_manual: RMSE=47.2132  MAE=26.6187  MAPE=427603970.17%  R²=-0.0022
+19:32:24 │ INFO    │     horizon=21 | controls=controls_heuristic
+19:32:24 │ INFO    │   [CausalImpact] Gold
+19:32:24 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:32:24 │ INFO    │     BSTS_proxy(h=21): RMSE=44.4503  MAE=24.7508  MAPE=88239616.92%  R²=-0.0276
+19:32:24 │ INFO    │   [DML] Gold
+19:32:24 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2134, 5) instead.. Использую ручной DML.
+19:32:29 │ INFO    │     DML_manual: RMSE=47.3853  MAE=27.2172  MAPE=2070675008.83%  R²=-0.0047
+19:32:29 │ INFO    │   [VAR+Granger] Gold
+19:32:29 │ INFO    │     Granger значимых: 3/6
+19:32:29 │ INFO    │     {'DXY': np.float64(0.0009), 'Yield10Y': np.float64(0.0), 'VIX': np.float64(0.0011), 'InflationCPI': np.float64(0.4044), 'Silver': np.float64(0.5207)}
+19:32:29 │ INFO    │     VAR(lag=5): RMSE=47.2439  MAE=26.5706  MAPE=55691349.37%  R²=-0.0047
+19:32:29 │ INFO    │   [IV-2SLS] Gold
+19:32:29 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:32:29 │ INFO    │     2SLS_manual: RMSE=47.3784  MAE=26.7225  MAPE=292242318.37%  R²=-0.0044
+19:32:29 │ INFO    │ 
+  ▸ controls_causal_expert: ['SP500', 'IndProd_USA', 'FedFunds']
+19:32:29 │ INFO    │     horizon=1 | controls=controls_causal_expert
+19:32:29 │ INFO    │   [CausalImpact] Gold
+19:32:29 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:32:30 │ INFO    │     BSTS_proxy(h=1): RMSE=47.1626  MAE=26.4723  MAPE=4210160.95%  R²=-0.0040
+19:32:30 │ INFO    │   [DML] Gold
+19:32:30 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2145, 5) instead.. Использую ручной DML.
+19:32:35 │ INFO    │     DML_manual: RMSE=48.4952  MAE=27.7590  MAPE=162531320.99%  R²=-0.0574
+19:32:35 │ INFO    │   [VAR+Granger] Gold
+19:32:35 │ INFO    │     Granger значимых: 5/7
+19:32:35 │ INFO    │     {'DXY': np.float64(0.0009), 'Yield10Y': np.float64(0.0), 'VIX': np.float64(0.0011), 'InflationCPI': np.float64(0.4044), 'Silver': np.float64(0.5207)}
+19:32:35 │ INFO    │     VAR(lag=6): RMSE=47.1626  MAE=26.7959  MAPE=581286000.73%  R²=-0.0013
+19:32:35 │ INFO    │   [IV-2SLS] Gold
+19:32:35 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:32:35 │ INFO    │     2SLS_manual: RMSE=47.2108  MAE=26.6847  MAPE=391737847.61%  R²=-0.0021
+19:32:35 │ INFO    │     horizon=5 | controls=controls_causal_expert
+19:32:35 │ INFO    │   [CausalImpact] Gold
+19:32:35 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:32:36 │ INFO    │     BSTS_proxy(h=5): RMSE=46.6660  MAE=26.1198  MAPE=13924166.51%  R²=-0.0035
+19:32:36 │ INFO    │   [DML] Gold
+19:32:36 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2143, 5) instead.. Использую ручной DML.
+19:32:41 │ INFO    │     DML_manual: RMSE=48.0402  MAE=26.9573  MAPE=658991633.34%  R²=-0.0363
+19:32:41 │ INFO    │   [VAR+Granger] Gold
+19:32:42 │ INFO    │     Granger значимых: 5/7
+19:32:42 │ INFO    │     {'DXY': np.float64(0.0009), 'Yield10Y': np.float64(0.0), 'VIX': np.float64(0.0011), 'InflationCPI': np.float64(0.4044), 'Silver': np.float64(0.5207)}
+19:32:42 │ INFO    │     VAR(lag=6): RMSE=47.0730  MAE=26.6596  MAPE=193515778.81%  R²=0.0025
+19:32:42 │ INFO    │   [IV-2SLS] Gold
+19:32:42 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:32:42 │ INFO    │     2SLS_manual: RMSE=47.2132  MAE=26.6187  MAPE=427603970.17%  R²=-0.0022
+19:32:42 │ INFO    │     horizon=21 | controls=controls_causal_expert
+19:32:42 │ INFO    │   [CausalImpact] Gold
+19:32:42 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:32:42 │ INFO    │     BSTS_proxy(h=21): RMSE=44.0776  MAE=24.8157  MAPE=1523236.05%  R²=-0.0104
+19:32:42 │ INFO    │   [DML] Gold
+19:32:42 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2134, 5) instead.. Использую ручной DML.
+19:32:48 │ INFO    │     DML_manual: RMSE=47.2869  MAE=26.9174  MAPE=333391533.03%  R²=-0.0005
+19:32:48 │ INFO    │   [VAR+Granger] Gold
+19:32:48 │ INFO    │     Granger значимых: 5/7
+19:32:48 │ INFO    │     {'DXY': np.float64(0.0009), 'Yield10Y': np.float64(0.0), 'VIX': np.float64(0.0011), 'InflationCPI': np.float64(0.4044), 'Silver': np.float64(0.5207)}
+19:32:48 │ INFO    │     VAR(lag=6): RMSE=47.2520  MAE=26.5800  MAPE=49209269.29%  R²=-0.0051
+19:32:48 │ INFO    │   [IV-2SLS] Gold
+19:32:48 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:32:48 │ INFO    │     2SLS_manual: RMSE=47.3784  MAE=26.7225  MAPE=292242318.37%  R²=-0.0044
+19:32:48 │ INFO    │ 
+  ▸ controls_causal_pc: ['Yield10Y', 'Silver']
+19:32:48 │ INFO    │     horizon=1 | controls=controls_causal_pc
+19:32:48 │ INFO    │   [CausalImpact] Gold
+19:32:48 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:32:48 │ INFO    │     BSTS_proxy(h=1): RMSE=48.0668  MAE=26.6586  MAPE=60458698.34%  R²=-0.0429
+19:32:48 │ INFO    │   [DML] Gold
+19:32:48 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2145, 5) instead.. Использую ручной DML.
+19:32:52 │ INFO    │     DML_manual: RMSE=47.8888  MAE=27.4940  MAPE=1021023009.82%  R²=-0.0311
+19:32:52 │ INFO    │   [VAR+Granger] Gold
+19:32:52 │ INFO    │     Granger значимых: 3/5
+19:32:52 │ INFO    │     {'DXY': np.float64(0.0009), 'Yield10Y': np.float64(0.0), 'VIX': np.float64(0.0011), 'InflationCPI': np.float64(0.4044), 'Silver': np.float64(0.5207)}
+19:32:52 │ INFO    │     VAR(lag=5): RMSE=47.2202  MAE=26.7859  MAPE=678939543.00%  R²=-0.0037
+19:32:52 │ INFO    │   [IV-2SLS] Gold
+19:32:52 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:32:52 │ INFO    │     2SLS_manual: RMSE=47.2108  MAE=26.6847  MAPE=391737847.61%  R²=-0.0021
+19:32:52 │ INFO    │     horizon=5 | controls=controls_causal_pc
+19:32:52 │ INFO    │   [CausalImpact] Gold
+19:32:52 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:32:53 │ INFO    │     BSTS_proxy(h=5): RMSE=46.7798  MAE=26.1915  MAPE=59537390.10%  R²=-0.0084
+19:32:53 │ INFO    │   [DML] Gold
+19:32:53 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2143, 5) instead.. Использую ручной DML.
+19:32:57 │ INFO    │     DML_manual: RMSE=48.3817  MAE=27.3202  MAPE=559928994.32%  R²=-0.0511
+19:32:57 │ INFO    │   [VAR+Granger] Gold
+19:32:57 │ INFO    │     Granger значимых: 3/5
+19:32:57 │ INFO    │     {'DXY': np.float64(0.0009), 'Yield10Y': np.float64(0.0), 'VIX': np.float64(0.0011), 'InflationCPI': np.float64(0.4044), 'Silver': np.float64(0.5207)}
+19:32:57 │ INFO    │     VAR(lag=5): RMSE=47.2315  MAE=26.5884  MAPE=48467646.14%  R²=-0.0042
+19:32:57 │ INFO    │   [IV-2SLS] Gold
+19:32:57 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:32:57 │ INFO    │     2SLS_manual: RMSE=47.2132  MAE=26.6187  MAPE=427603970.17%  R²=-0.0022
+19:32:57 │ INFO    │     horizon=21 | controls=controls_causal_pc
+19:32:57 │ INFO    │   [CausalImpact] Gold
+19:32:57 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:32:57 │ INFO    │     BSTS_proxy(h=21): RMSE=44.1592  MAE=24.7033  MAPE=52156131.22%  R²=-0.0141
+19:32:57 │ INFO    │   [DML] Gold
+19:32:57 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2134, 5) instead.. Использую ручной DML.
+19:33:01 │ INFO    │     DML_manual: RMSE=47.3083  MAE=27.0791  MAPE=214458290.47%  R²=-0.0014
+19:33:01 │ INFO    │   [VAR+Granger] Gold
+19:33:01 │ INFO    │     Granger значимых: 3/5
+19:33:01 │ INFO    │     {'DXY': np.float64(0.0009), 'Yield10Y': np.float64(0.0), 'VIX': np.float64(0.0011), 'InflationCPI': np.float64(0.4044), 'Silver': np.float64(0.5207)}
+19:33:01 │ INFO    │     VAR(lag=5): RMSE=47.2439  MAE=26.5706  MAPE=55691349.37%  R²=-0.0047
+19:33:01 │ INFO    │   [IV-2SLS] Gold
+19:33:01 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:33:01 │ INFO    │     2SLS_manual: RMSE=47.3784  MAE=26.7225  MAPE=292242318.37%  R²=-0.0044
+19:33:01 │ INFO    │ 
+════════════════════════════════════════════════════════════
+19:33:01 │ INFO    │   КАУЗАЛЬНЫЕ МОДЕЛИ: EUR/USD (EURUSD)  [freq=D]
+19:33:01 │ INFO    │ ════════════════════════════════════════════════════════════
+19:33:05 │ INFO    │ 
+  ▸ controls_heuristic: ['USDCHF', 'AUDUSD']
+19:33:05 │ INFO    │     horizon=1 | controls=controls_heuristic
+19:33:05 │ INFO    │   [CausalImpact] EURUSD
+19:33:05 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:33:05 │ INFO    │     BSTS_proxy(h=1): RMSE=0.0051  MAE=0.0038  MAPE=57653.17%  R²=-0.0804
+19:33:05 │ INFO    │   [DML] EURUSD
+19:33:05 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2224, 4) instead.. Использую ручной DML.
+19:33:10 │ INFO    │     DML_manual: RMSE=0.0050  MAE=0.0037  MAPE=230191.34%  R²=-0.0290
+19:33:10 │ INFO    │   [VAR+Granger] EURUSD
+19:33:10 │ INFO    │     Granger значимых: 1/6
+19:33:10 │ INFO    │     {'UST_10Y': np.float64(0.1141), 'FedFunds': np.float64(0.7883), 'Trade_Balance': np.float64(0.6387), 'M2_USA': np.float64(0.2136), 'USDCHF': np.float64(0.071)}
+19:33:10 │ INFO    │     VAR(lag=4): RMSE=0.0050  MAE=0.0037  MAPE=92484.50%  R²=-0.0196
+19:33:10 │ INFO    │   [IV-2SLS] EURUSD
+19:33:11 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (4).
+19:33:11 │ INFO    │     2SLS_manual: RMSE=0.0047  MAE=0.0035  MAPE=225765.17%  R²=0.0944
+19:33:11 │ INFO    │     horizon=5 | controls=controls_heuristic
+19:33:11 │ INFO    │   [CausalImpact] EURUSD
+19:33:11 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:33:11 │ INFO    │     BSTS_proxy(h=5): RMSE=0.0050  MAE=0.0037  MAPE=32093.09%  R²=-0.0466
+19:33:11 │ INFO    │   [DML] EURUSD
+19:33:11 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2221, 4) instead.. Использую ручной DML.
+19:33:16 │ INFO    │     DML_manual: RMSE=0.0050  MAE=0.0037  MAPE=1146809.88%  R²=-0.0243
+19:33:16 │ INFO    │   [VAR+Granger] EURUSD
+19:33:16 │ INFO    │     Granger значимых: 1/6
+19:33:16 │ INFO    │     {'UST_10Y': np.float64(0.1141), 'FedFunds': np.float64(0.7883), 'Trade_Balance': np.float64(0.6387), 'M2_USA': np.float64(0.2136), 'USDCHF': np.float64(0.071)}
+19:33:16 │ INFO    │     VAR(lag=4): RMSE=0.0049  MAE=0.0037  MAPE=51451.67%  R²=-0.0007
+19:33:16 │ INFO    │   [IV-2SLS] EURUSD
+19:33:16 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (4).
+19:33:16 │ INFO    │     2SLS_manual: RMSE=0.0050  MAE=0.0037  MAPE=348005.12%  R²=-0.0160
+19:33:16 │ INFO    │     horizon=21 | controls=controls_heuristic
+19:33:16 │ INFO    │   [CausalImpact] EURUSD
+19:33:16 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:33:17 │ INFO    │     BSTS_proxy(h=21): RMSE=0.0048  MAE=0.0036  MAPE=54588.88%  R²=0.0174
+19:33:17 │ INFO    │   [DML] EURUSD
+19:33:17 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2213, 4) instead.. Использую ручной DML.
+19:33:22 │ INFO    │     DML_manual: RMSE=0.0055  MAE=0.0040  MAPE=2211384.37%  R²=-0.2249
+19:33:22 │ INFO    │   [VAR+Granger] EURUSD
+19:33:22 │ INFO    │     Granger значимых: 1/6
+19:33:22 │ INFO    │     {'UST_10Y': np.float64(0.1141), 'FedFunds': np.float64(0.7883), 'Trade_Balance': np.float64(0.6387), 'M2_USA': np.float64(0.2136), 'USDCHF': np.float64(0.071)}
+19:33:22 │ INFO    │     VAR(lag=4): RMSE=0.0049  MAE=0.0037  MAPE=47795.86%  R²=-0.0011
+19:33:22 │ INFO    │   [IV-2SLS] EURUSD
+19:33:22 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (4).
+19:33:22 │ INFO    │     2SLS_manual: RMSE=0.0050  MAE=0.0037  MAPE=174614.42%  R²=-0.0071
+19:33:22 │ INFO    │ 
+  ▸ controls_causal_expert: ['VIX', 'SP500', 'Gold', 'WTI']
+19:33:22 │ INFO    │     horizon=1 | controls=controls_causal_expert
+19:33:22 │ INFO    │   [CausalImpact] EURUSD
+19:33:22 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:33:23 │ INFO    │     BSTS_proxy(h=1): RMSE=0.0065  MAE=0.0046  MAPE=922937.77%  R²=-0.7409
+19:33:23 │ INFO    │   [DML] EURUSD
+19:33:23 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2224, 4) instead.. Использую ручной DML.
+19:33:29 │ INFO    │     DML_manual: RMSE=0.0049  MAE=0.0037  MAPE=744996.83%  R²=0.0058
+19:33:29 │ INFO    │   [VAR+Granger] EURUSD
+19:33:30 │ INFO    │     Granger значимых: 4/8
+19:33:30 │ INFO    │     {'UST_10Y': np.float64(0.1141), 'FedFunds': np.float64(0.7883), 'Trade_Balance': np.float64(0.6387), 'M2_USA': np.float64(0.2136), 'VIX': np.float64(0.0)}
+19:33:30 │ INFO    │     VAR(lag=6): RMSE=0.0061  MAE=0.0043  MAPE=1007466.12%  R²=-0.5363
+19:33:30 │ INFO    │   [IV-2SLS] EURUSD
+19:33:30 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (4).
+19:33:30 │ INFO    │     2SLS_manual: RMSE=0.0047  MAE=0.0035  MAPE=225765.17%  R²=0.0944
+19:33:30 │ INFO    │     horizon=5 | controls=controls_causal_expert
+19:33:30 │ INFO    │   [CausalImpact] EURUSD
+19:33:30 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:33:31 │ INFO    │     BSTS_proxy(h=5): RMSE=0.0050  MAE=0.0037  MAPE=69765.52%  R²=-0.0166
+19:33:31 │ INFO    │   [DML] EURUSD
+19:33:31 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2221, 4) instead.. Использую ручной DML.
+19:33:37 │ INFO    │     DML_manual: RMSE=0.0054  MAE=0.0040  MAPE=1056871.09%  R²=-0.2132
+19:33:37 │ INFO    │   [VAR+Granger] EURUSD
+19:33:37 │ INFO    │     Granger значимых: 4/8
+19:33:37 │ INFO    │     {'UST_10Y': np.float64(0.1141), 'FedFunds': np.float64(0.7883), 'Trade_Balance': np.float64(0.6387), 'M2_USA': np.float64(0.2136), 'VIX': np.float64(0.0)}
+19:33:37 │ INFO    │     VAR(lag=6): RMSE=0.0050  MAE=0.0037  MAPE=293822.04%  R²=-0.0316
+19:33:37 │ INFO    │   [IV-2SLS] EURUSD
+19:33:37 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (4).
+19:33:37 │ INFO    │     2SLS_manual: RMSE=0.0050  MAE=0.0037  MAPE=348005.12%  R²=-0.0160
+19:33:37 │ INFO    │     horizon=21 | controls=controls_causal_expert
+19:33:37 │ INFO    │   [CausalImpact] EURUSD
+19:33:37 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:33:38 │ INFO    │     BSTS_proxy(h=21): RMSE=0.0049  MAE=0.0036  MAPE=142354.08%  R²=0.0042
+19:33:38 │ INFO    │   [DML] EURUSD
+19:33:38 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2213, 4) instead.. Использую ручной DML.
+19:33:44 │ INFO    │     DML_manual: RMSE=0.0053  MAE=0.0040  MAPE=1964087.79%  R²=-0.1467
+19:33:44 │ INFO    │   [VAR+Granger] EURUSD
+19:33:44 │ INFO    │     Granger значимых: 4/8
+19:33:44 │ INFO    │     {'UST_10Y': np.float64(0.1141), 'FedFunds': np.float64(0.7883), 'Trade_Balance': np.float64(0.6387), 'M2_USA': np.float64(0.2136), 'VIX': np.float64(0.0)}
+19:33:45 │ INFO    │     VAR(lag=6): RMSE=0.0049  MAE=0.0037  MAPE=58274.18%  R²=-0.0016
+19:33:45 │ INFO    │   [IV-2SLS] EURUSD
+19:33:45 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (4).
+19:33:45 │ INFO    │     2SLS_manual: RMSE=0.0050  MAE=0.0037  MAPE=174614.42%  R²=-0.0071
+19:33:45 │ INFO    │ 
+  ▸ controls_causal_pc: ['Gold']
+19:33:45 │ INFO    │     horizon=1 | controls=controls_causal_pc
+19:33:45 │ INFO    │   [CausalImpact] EURUSD
+19:33:45 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:33:45 │ INFO    │     BSTS_proxy(h=1): RMSE=0.0063  MAE=0.0045  MAPE=1480148.04%  R²=-0.6542
+19:33:45 │ INFO    │   [DML] EURUSD
+19:33:45 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2224, 4) instead.. Использую ручной DML.
+19:33:49 │ INFO    │     DML_manual: RMSE=0.0052  MAE=0.0039  MAPE=1296427.32%  R²=-0.0923
+19:33:49 │ INFO    │   [VAR+Granger] EURUSD
+19:33:49 │ INFO    │     Granger значимых: 1/5
+19:33:49 │ INFO    │     {'UST_10Y': np.float64(0.1141), 'FedFunds': np.float64(0.7883), 'Trade_Balance': np.float64(0.6387), 'M2_USA': np.float64(0.2136), 'Gold': np.float64(0.0)}
+19:33:49 │ INFO    │     VAR(lag=3): RMSE=0.0059  MAE=0.0041  MAPE=863589.16%  R²=-0.4338
+19:33:49 │ INFO    │   [IV-2SLS] EURUSD
+19:33:49 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (4).
+19:33:49 │ INFO    │     2SLS_manual: RMSE=0.0047  MAE=0.0035  MAPE=225765.17%  R²=0.0944
+19:33:49 │ INFO    │     horizon=5 | controls=controls_causal_pc
+19:33:49 │ INFO    │   [CausalImpact] EURUSD
+19:33:49 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:33:49 │ INFO    │     BSTS_proxy(h=5): RMSE=0.0050  MAE=0.0037  MAPE=116836.12%  R²=-0.0151
+19:33:49 │ INFO    │   [DML] EURUSD
+19:33:49 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2221, 4) instead.. Использую ручной DML.
+19:33:53 │ INFO    │     DML_manual: RMSE=0.0054  MAE=0.0040  MAPE=563719.03%  R²=-0.1881
+19:33:53 │ INFO    │   [VAR+Granger] EURUSD
+19:33:53 │ INFO    │     Granger значимых: 1/5
+19:33:53 │ INFO    │     {'UST_10Y': np.float64(0.1141), 'FedFunds': np.float64(0.7883), 'Trade_Balance': np.float64(0.6387), 'M2_USA': np.float64(0.2136), 'Gold': np.float64(0.0)}
+19:33:53 │ INFO    │     VAR(lag=3): RMSE=0.0049  MAE=0.0037  MAPE=57579.99%  R²=-0.0037
+19:33:53 │ INFO    │   [IV-2SLS] EURUSD
+19:33:53 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (4).
+19:33:53 │ INFO    │     2SLS_manual: RMSE=0.0050  MAE=0.0037  MAPE=348005.12%  R²=-0.0160
+19:33:53 │ INFO    │     horizon=21 | controls=controls_causal_pc
+19:33:53 │ INFO    │   [CausalImpact] EURUSD
+19:33:53 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:33:54 │ INFO    │     BSTS_proxy(h=21): RMSE=0.0049  MAE=0.0036  MAPE=112649.96%  R²=0.0017
+19:33:54 │ INFO    │   [DML] EURUSD
+19:33:54 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2213, 4) instead.. Использую ручной DML.
+19:33:57 │ INFO    │     DML_manual: RMSE=0.0053  MAE=0.0040  MAPE=1741205.83%  R²=-0.1406
+19:33:57 │ INFO    │   [VAR+Granger] EURUSD
+19:33:57 │ INFO    │     Granger значимых: 1/5
+19:33:57 │ INFO    │     {'UST_10Y': np.float64(0.1141), 'FedFunds': np.float64(0.7883), 'Trade_Balance': np.float64(0.6387), 'M2_USA': np.float64(0.2136), 'Gold': np.float64(0.0)}
+19:33:57 │ INFO    │     VAR(lag=3): RMSE=0.0049  MAE=0.0037  MAPE=48378.21%  R²=-0.0011
+19:33:57 │ INFO    │   [IV-2SLS] EURUSD
+19:33:57 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (4).
+19:33:57 │ INFO    │     2SLS_manual: RMSE=0.0050  MAE=0.0037  MAPE=174614.42%  R²=-0.0071
+19:33:57 │ INFO    │ 
+════════════════════════════════════════════════════════════
+19:33:57 │ INFO    │   КАУЗАЛЬНЫЕ МОДЕЛИ: GBP/USD (GBPUSD)  [freq=D]
+19:33:57 │ INFO    │ ════════════════════════════════════════════════════════════
+19:34:01 │ INFO    │ 
+  ▸ controls_heuristic: ['AUDUSD', 'USDCHF']
+19:34:01 │ INFO    │     horizon=1 | controls=controls_heuristic
+19:34:01 │ INFO    │   [CausalImpact] GBPUSD
+19:34:01 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:34:02 │ INFO    │     BSTS_proxy(h=1): RMSE=0.0059  MAE=0.0046  MAPE=34933.08%  R²=-0.0192
+19:34:02 │ INFO    │   [DML] GBPUSD
+19:34:02 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2224, 3) instead.. Использую ручной DML.
+19:34:06 │ INFO    │     DML_manual: RMSE=0.0060  MAE=0.0046  MAPE=170637.04%  R²=-0.0440
+19:34:06 │ INFO    │   [VAR+Granger] GBPUSD
+19:34:06 │ INFO    │     Granger значимых: 1/5
+19:34:06 │ INFO    │     {'FedFunds': np.float64(0.5209), 'Trade_Balance': np.float64(0.5301), 'M2_USA': np.float64(0.402), 'AUDUSD': np.float64(0.0402), 'USDCHF': np.float64(0.9475)}
+19:34:06 │ INFO    │     VAR(lag=1): RMSE=0.0059  MAE=0.0045  MAPE=56118.89%  R²=-0.0042
+19:34:06 │ INFO    │   [IV-2SLS] GBPUSD
+19:34:06 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (3).
+19:34:06 │ INFO    │     2SLS_manual: RMSE=0.0055  MAE=0.0043  MAPE=178117.21%  R²=0.1013
+19:34:06 │ INFO    │     horizon=5 | controls=controls_heuristic
+19:34:06 │ INFO    │   [CausalImpact] GBPUSD
+19:34:06 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:34:07 │ INFO    │     BSTS_proxy(h=5): RMSE=0.0060  MAE=0.0046  MAPE=30878.23%  R²=-0.0496
+19:34:07 │ INFO    │   [DML] GBPUSD
+19:34:07 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2221, 3) instead.. Использую ручной DML.
+19:34:10 │ INFO    │     DML_manual: RMSE=0.0060  MAE=0.0046  MAPE=497813.84%  R²=-0.0623
+19:34:10 │ INFO    │   [VAR+Granger] GBPUSD
+19:34:10 │ INFO    │     Granger значимых: 1/5
+19:34:10 │ INFO    │     {'FedFunds': np.float64(0.5209), 'Trade_Balance': np.float64(0.5301), 'M2_USA': np.float64(0.402), 'AUDUSD': np.float64(0.0402), 'USDCHF': np.float64(0.9475)}
+19:34:10 │ INFO    │     VAR(lag=1): RMSE=0.0059  MAE=0.0045  MAPE=32124.37%  R²=-0.0013
+19:34:10 │ INFO    │   [IV-2SLS] GBPUSD
+19:34:10 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (3).
+19:34:10 │ INFO    │     2SLS_manual: RMSE=0.0061  MAE=0.0047  MAPE=296952.67%  R²=-0.0993
+19:34:10 │ INFO    │     horizon=21 | controls=controls_heuristic
+19:34:10 │ INFO    │   [CausalImpact] GBPUSD
+19:34:10 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:34:11 │ INFO    │     BSTS_proxy(h=21): RMSE=0.0058  MAE=0.0045  MAPE=33855.65%  R²=-0.0089
+19:34:11 │ INFO    │   [DML] GBPUSD
+19:34:11 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2213, 3) instead.. Использую ручной DML.
+19:34:15 │ INFO    │     DML_manual: RMSE=0.0062  MAE=0.0048  MAPE=2202051.55%  R²=-0.1189
+19:34:15 │ INFO    │   [VAR+Granger] GBPUSD
+19:34:15 │ INFO    │     Granger значимых: 1/5
+19:34:15 │ INFO    │     {'FedFunds': np.float64(0.5209), 'Trade_Balance': np.float64(0.5301), 'M2_USA': np.float64(0.402), 'AUDUSD': np.float64(0.0402), 'USDCHF': np.float64(0.9475)}
+19:34:15 │ INFO    │     VAR(lag=1): RMSE=0.0059  MAE=0.0045  MAPE=32124.35%  R²=-0.0013
+19:34:15 │ INFO    │   [IV-2SLS] GBPUSD
+19:34:15 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (3).
+19:34:15 │ INFO    │     2SLS_manual: RMSE=0.0060  MAE=0.0046  MAPE=171359.33%  R²=-0.0384
+19:34:15 │ INFO    │ 
+  ▸ controls_causal_expert: ['VIX', 'SP500', 'Gold', 'WTI']
+19:34:15 │ INFO    │     horizon=1 | controls=controls_causal_expert
+19:34:15 │ INFO    │   [CausalImpact] GBPUSD
+19:34:15 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:34:17 │ INFO    │     BSTS_proxy(h=1): RMSE=0.0076  MAE=0.0056  MAPE=140491.73%  R²=-0.6916
+19:34:17 │ INFO    │   [DML] GBPUSD
+19:34:17 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2224, 3) instead.. Использую ручной DML.
+19:34:22 │ INFO    │     DML_manual: RMSE=0.0061  MAE=0.0046  MAPE=437911.96%  R²=-0.0856
+19:34:22 │ INFO    │   [VAR+Granger] GBPUSD
+19:34:22 │ INFO    │     Granger значимых: 4/7
+19:34:22 │ INFO    │     {'FedFunds': np.float64(0.5209), 'Trade_Balance': np.float64(0.5301), 'M2_USA': np.float64(0.402), 'VIX': np.float64(0.0), 'SP500': np.float64(0.0)}
+19:34:22 │ INFO    │     VAR(lag=6): RMSE=0.0068  MAE=0.0049  MAPE=667581.14%  R²=-0.3450
+19:34:22 │ INFO    │   [IV-2SLS] GBPUSD
+19:34:22 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (3).
+19:34:22 │ INFO    │     2SLS_manual: RMSE=0.0055  MAE=0.0043  MAPE=178117.21%  R²=0.1013
+19:34:22 │ INFO    │     horizon=5 | controls=controls_causal_expert
+19:34:22 │ INFO    │   [CausalImpact] GBPUSD
+19:34:22 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:34:23 │ INFO    │     BSTS_proxy(h=5): RMSE=0.0058  MAE=0.0045  MAPE=28993.19%  R²=-0.0009
+19:34:23 │ INFO    │   [DML] GBPUSD
+19:34:23 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2221, 3) instead.. Использую ручной DML.
+19:34:28 │ INFO    │     DML_manual: RMSE=0.0064  MAE=0.0048  MAPE=1288878.22%  R²=-0.1850
+19:34:28 │ INFO    │   [VAR+Granger] GBPUSD
+19:34:29 │ INFO    │     Granger значимых: 4/7
+19:34:29 │ INFO    │     {'FedFunds': np.float64(0.5209), 'Trade_Balance': np.float64(0.5301), 'M2_USA': np.float64(0.402), 'VIX': np.float64(0.0), 'SP500': np.float64(0.0)}
+19:34:29 │ INFO    │     VAR(lag=6): RMSE=0.0059  MAE=0.0046  MAPE=137649.03%  R²=-0.0028
+19:34:29 │ INFO    │   [IV-2SLS] GBPUSD
+19:34:29 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (3).
+19:34:29 │ INFO    │     2SLS_manual: RMSE=0.0061  MAE=0.0047  MAPE=296952.67%  R²=-0.0993
+19:34:29 │ INFO    │     horizon=21 | controls=controls_causal_expert
+19:34:29 │ INFO    │   [CausalImpact] GBPUSD
+19:34:29 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:34:29 │ INFO    │     BSTS_proxy(h=21): RMSE=0.0058  MAE=0.0045  MAPE=179945.28%  R²=-0.0047
+19:34:29 │ INFO    │   [DML] GBPUSD
+19:34:29 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2213, 3) instead.. Использую ручной DML.
+19:34:34 │ INFO    │     DML_manual: RMSE=0.0063  MAE=0.0049  MAPE=1887117.03%  R²=-0.1741
+19:34:34 │ INFO    │   [VAR+Granger] GBPUSD
+19:34:35 │ INFO    │     Granger значимых: 4/7
+19:34:35 │ INFO    │     {'FedFunds': np.float64(0.5209), 'Trade_Balance': np.float64(0.5301), 'M2_USA': np.float64(0.402), 'VIX': np.float64(0.0), 'SP500': np.float64(0.0)}
+19:34:35 │ INFO    │     VAR(lag=6): RMSE=0.0059  MAE=0.0045  MAPE=30601.60%  R²=-0.0015
+19:34:35 │ INFO    │   [IV-2SLS] GBPUSD
+19:34:35 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (3).
+19:34:35 │ INFO    │     2SLS_manual: RMSE=0.0060  MAE=0.0046  MAPE=171359.33%  R²=-0.0384
+19:34:35 │ INFO    │ 
+  ▸ controls_causal_pc: ['VIX', 'Gold']
+19:34:35 │ INFO    │     horizon=1 | controls=controls_causal_pc
+19:34:35 │ INFO    │   [CausalImpact] GBPUSD
+19:34:35 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:34:36 │ INFO    │     BSTS_proxy(h=1): RMSE=0.0072  MAE=0.0053  MAPE=1184218.83%  R²=-0.5062
+19:34:36 │ INFO    │   [DML] GBPUSD
+19:34:36 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2224, 3) instead.. Использую ручной DML.
+19:34:39 │ INFO    │     DML_manual: RMSE=0.0060  MAE=0.0045  MAPE=1248858.31%  R²=-0.0443
+19:34:39 │ INFO    │   [VAR+Granger] GBPUSD
+19:34:39 │ INFO    │     Granger значимых: 2/5
+19:34:39 │ INFO    │     {'FedFunds': np.float64(0.5209), 'Trade_Balance': np.float64(0.5301), 'M2_USA': np.float64(0.402), 'VIX': np.float64(0.0), 'Gold': np.float64(0.0)}
+19:34:39 │ INFO    │     VAR(lag=2): RMSE=0.0065  MAE=0.0047  MAPE=403228.96%  R²=-0.2488
+19:34:39 │ INFO    │   [IV-2SLS] GBPUSD
+19:34:39 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (3).
+19:34:39 │ INFO    │     2SLS_manual: RMSE=0.0055  MAE=0.0043  MAPE=178117.21%  R²=0.1013
+19:34:39 │ INFO    │     horizon=5 | controls=controls_causal_pc
+19:34:39 │ INFO    │   [CausalImpact] GBPUSD
+19:34:39 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:34:41 │ INFO    │     BSTS_proxy(h=5): RMSE=0.0058  MAE=0.0045  MAPE=29347.62%  R²=0.0002
+19:34:41 │ INFO    │   [DML] GBPUSD
+19:34:41 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2221, 3) instead.. Использую ручной DML.
+19:34:44 │ INFO    │     DML_manual: RMSE=0.0060  MAE=0.0047  MAPE=270375.79%  R²=-0.0667
+19:34:44 │ INFO    │   [VAR+Granger] GBPUSD
+19:34:44 │ INFO    │     Granger значимых: 2/5
+19:34:44 │ INFO    │     {'FedFunds': np.float64(0.5209), 'Trade_Balance': np.float64(0.5301), 'M2_USA': np.float64(0.402), 'VIX': np.float64(0.0), 'Gold': np.float64(0.0)}
+19:34:44 │ INFO    │     VAR(lag=2): RMSE=0.0059  MAE=0.0045  MAPE=88716.32%  R²=-0.0009
+19:34:44 │ INFO    │   [IV-2SLS] GBPUSD
+19:34:44 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (3).
+19:34:44 │ INFO    │     2SLS_manual: RMSE=0.0061  MAE=0.0047  MAPE=296952.67%  R²=-0.0993
+19:34:44 │ INFO    │     horizon=21 | controls=controls_causal_pc
+19:34:44 │ INFO    │   [CausalImpact] GBPUSD
+19:34:44 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:34:45 │ INFO    │     BSTS_proxy(h=21): RMSE=0.0058  MAE=0.0045  MAPE=59002.86%  R²=-0.0028
+19:34:45 │ INFO    │   [DML] GBPUSD
+19:34:45 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2213, 3) instead.. Использую ручной DML.
+19:34:48 │ INFO    │     DML_manual: RMSE=0.0063  MAE=0.0049  MAPE=1786639.30%  R²=-0.1575
+19:34:48 │ INFO    │   [VAR+Granger] GBPUSD
+19:34:48 │ INFO    │     Granger значимых: 2/5
+19:34:48 │ INFO    │     {'FedFunds': np.float64(0.5209), 'Trade_Balance': np.float64(0.5301), 'M2_USA': np.float64(0.402), 'VIX': np.float64(0.0), 'Gold': np.float64(0.0)}
+19:34:48 │ INFO    │     VAR(lag=2): RMSE=0.0059  MAE=0.0045  MAPE=68110.97%  R²=-0.0006
+19:34:48 │ INFO    │   [IV-2SLS] GBPUSD
+19:34:48 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (3).
+19:34:48 │ INFO    │     2SLS_manual: RMSE=0.0060  MAE=0.0046  MAPE=171359.33%  R²=-0.0384
+19:34:48 │ INFO    │ 
+════════════════════════════════════════════════════════════
+19:34:48 │ INFO    │   КАУЗАЛЬНЫЕ МОДЕЛИ: USD/JPY (USDJPY)  [freq=D]
+19:34:48 │ INFO    │ ════════════════════════════════════════════════════════════
+19:34:52 │ INFO    │ 
+  ▸ controls_heuristic: ['USDCHF', 'Nikkei', 'AUDUSD']
+19:34:52 │ INFO    │     horizon=1 | controls=controls_heuristic
+19:34:52 │ INFO    │   [CausalImpact] USDJPY
+19:34:52 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:34:53 │ INFO    │     BSTS_proxy(h=1): RMSE=0.8870  MAE=0.6749  MAPE=82485373.74%  R²=0.0369
+19:34:53 │ INFO    │   [DML] USDJPY
+19:34:53 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2224, 5) instead.. Использую ручной DML.
+19:35:02 │ INFO    │     DML_manual: RMSE=0.8687  MAE=0.6317  MAPE=286693849.99%  R²=0.0783
+19:35:02 │ INFO    │   [VAR+Granger] USDJPY
+19:35:02 │ INFO    │     Granger значимых: 5/8
+19:35:02 │ INFO    │     {'Yield10Y': np.float64(0.0), 'UST_10Y': np.float64(0.0), 'FedFunds': np.float64(0.6474), 'VIX': np.float64(0.0), 'SP500': np.float64(0.0)}
+19:35:02 │ INFO    │     VAR(lag=6): RMSE=0.8444  MAE=0.6169  MAPE=244443547.50%  R²=0.1273
+19:35:02 │ INFO    │   [IV-2SLS] USDJPY
+19:35:02 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:35:02 │ INFO    │     2SLS_manual: RMSE=0.7771  MAE=0.5765  MAPE=104207840.29%  R²=0.2617
+19:35:02 │ INFO    │     horizon=5 | controls=controls_heuristic
+19:35:02 │ INFO    │   [CausalImpact] USDJPY
+19:35:02 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:35:02 │ INFO    │     BSTS_proxy(h=5): RMSE=0.9207  MAE=0.6826  MAPE=19121753.13%  R²=-0.0358
+19:35:02 │ INFO    │   [DML] USDJPY
+19:35:02 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2221, 5) instead.. Использую ручной DML.
+19:35:11 │ INFO    │     DML_manual: RMSE=0.9291  MAE=0.6935  MAPE=215272115.14%  R²=-0.0542
+19:35:11 │ INFO    │   [VAR+Granger] USDJPY
+19:35:11 │ INFO    │     Granger значимых: 5/8
+19:35:11 │ INFO    │     {'Yield10Y': np.float64(0.0), 'UST_10Y': np.float64(0.0), 'FedFunds': np.float64(0.6474), 'VIX': np.float64(0.0), 'SP500': np.float64(0.0)}
+19:35:12 │ INFO    │     VAR(lag=6): RMSE=0.8975  MAE=0.6699  MAPE=20451704.06%  R²=0.0140
+19:35:12 │ INFO    │   [IV-2SLS] USDJPY
+19:35:12 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:35:12 │ INFO    │     2SLS_manual: RMSE=0.9070  MAE=0.6780  MAPE=56464838.85%  R²=-0.0047
+19:35:12 │ INFO    │     horizon=21 | controls=controls_heuristic
+19:35:12 │ INFO    │   [CausalImpact] USDJPY
+19:35:12 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:35:12 │ INFO    │     BSTS_proxy(h=21): RMSE=0.9198  MAE=0.6820  MAPE=15196645.39%  R²=-0.0289
+19:35:12 │ INFO    │   [DML] USDJPY
+19:35:12 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2213, 5) instead.. Использую ручной DML.
+19:35:21 │ INFO    │     DML_manual: RMSE=0.9307  MAE=0.6902  MAPE=98862067.99%  R²=-0.0567
+19:35:21 │ INFO    │   [VAR+Granger] USDJPY
+19:35:21 │ INFO    │     Granger значимых: 5/8
+19:35:21 │ INFO    │     {'Yield10Y': np.float64(0.0), 'UST_10Y': np.float64(0.0), 'FedFunds': np.float64(0.6474), 'VIX': np.float64(0.0), 'SP500': np.float64(0.0)}
+19:35:21 │ INFO    │     VAR(lag=6): RMSE=0.9042  MAE=0.6739  MAPE=6108715.63%  R²=-0.0007
+19:35:21 │ INFO    │   [IV-2SLS] USDJPY
+19:35:21 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:35:21 │ INFO    │     2SLS_manual: RMSE=0.9092  MAE=0.6760  MAPE=15686979.78%  R²=-0.0095
+19:35:21 │ INFO    │ 
+  ▸ controls_causal_expert: ['Gold', 'WTI', 'DXY']
+19:35:21 │ INFO    │     horizon=1 | controls=controls_causal_expert
+19:35:21 │ INFO    │   [CausalImpact] USDJPY
+19:35:21 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:35:22 │ INFO    │     BSTS_proxy(h=1): RMSE=0.9801  MAE=0.7307  MAPE=227166264.10%  R²=-0.1758
+19:35:22 │ INFO    │   [DML] USDJPY
+19:35:22 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2224, 5) instead.. Использую ручной DML.
+19:35:30 │ INFO    │     DML_manual: RMSE=0.7286  MAE=0.5360  MAPE=153140879.52%  R²=0.3517
+19:35:30 │ INFO    │   [VAR+Granger] USDJPY
+19:35:30 │ INFO    │     Granger значимых: 6/8
+19:35:30 │ INFO    │     {'Yield10Y': np.float64(0.0), 'UST_10Y': np.float64(0.0), 'FedFunds': np.float64(0.6474), 'VIX': np.float64(0.0), 'SP500': np.float64(0.0)}
+19:35:30 │ INFO    │     VAR(lag=6): RMSE=0.8400  MAE=0.6165  MAPE=158208278.30%  R²=0.1362
+19:35:30 │ INFO    │   [IV-2SLS] USDJPY
+19:35:30 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:35:30 │ INFO    │     2SLS_manual: RMSE=0.7771  MAE=0.5765  MAPE=104207840.29%  R²=0.2617
+19:35:30 │ INFO    │     horizon=5 | controls=controls_causal_expert
+19:35:30 │ INFO    │   [CausalImpact] USDJPY
+19:35:30 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:35:30 │ INFO    │     BSTS_proxy(h=5): RMSE=0.9045  MAE=0.6750  MAPE=29795614.85%  R²=0.0002
+19:35:30 │ INFO    │   [DML] USDJPY
+19:35:30 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2221, 5) instead.. Использую ручной DML.
+19:35:38 │ INFO    │     DML_manual: RMSE=0.9227  MAE=0.6891  MAPE=92543177.08%  R²=-0.0398
+19:35:38 │ INFO    │   [VAR+Granger] USDJPY
+19:35:38 │ INFO    │     Granger значимых: 6/8
+19:35:38 │ INFO    │     {'Yield10Y': np.float64(0.0), 'UST_10Y': np.float64(0.0), 'FedFunds': np.float64(0.6474), 'VIX': np.float64(0.0), 'SP500': np.float64(0.0)}
+19:35:38 │ INFO    │     VAR(lag=6): RMSE=0.8898  MAE=0.6652  MAPE=43018195.17%  R²=0.0309
+19:35:38 │ INFO    │   [IV-2SLS] USDJPY
+19:35:38 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:35:38 │ INFO    │     2SLS_manual: RMSE=0.9070  MAE=0.6780  MAPE=56464838.85%  R²=-0.0047
+19:35:38 │ INFO    │     horizon=21 | controls=controls_causal_expert
+19:35:38 │ INFO    │   [CausalImpact] USDJPY
+19:35:38 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:35:38 │ INFO    │     BSTS_proxy(h=21): RMSE=0.9066  MAE=0.6744  MAPE=14488312.23%  R²=0.0005
+19:35:38 │ INFO    │   [DML] USDJPY
+19:35:38 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2213, 5) instead.. Использую ручной DML.
+19:35:46 │ INFO    │     DML_manual: RMSE=0.9308  MAE=0.6908  MAPE=108099241.06%  R²=-0.0570
+19:35:46 │ INFO    │   [VAR+Granger] USDJPY
+19:35:46 │ INFO    │     Granger значимых: 6/8
+19:35:46 │ INFO    │     {'Yield10Y': np.float64(0.0), 'UST_10Y': np.float64(0.0), 'FedFunds': np.float64(0.6474), 'VIX': np.float64(0.0), 'SP500': np.float64(0.0)}
+19:35:46 │ INFO    │     VAR(lag=6): RMSE=0.9043  MAE=0.6740  MAPE=6482863.73%  R²=-0.0009
+19:35:46 │ INFO    │   [IV-2SLS] USDJPY
+19:35:46 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:35:46 │ INFO    │     2SLS_manual: RMSE=0.9092  MAE=0.6760  MAPE=15686979.78%  R²=-0.0095
+19:35:46 │ INFO    │ 
+  ▸ controls_causal_pc: ['VIX', 'Gold']
+19:35:46 │ INFO    │     horizon=1 | controls=controls_causal_pc
+19:35:46 │ INFO    │   [CausalImpact] USDJPY
+19:35:46 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:35:46 │ INFO    │     BSTS_proxy(h=1): RMSE=1.0165  MAE=0.7492  MAPE=181939068.54%  R²=-0.2647
+19:35:46 │ INFO    │   [DML] USDJPY
+19:35:46 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2224, 5) instead.. Использую ручной DML.
+19:35:52 │ INFO    │     DML_manual: RMSE=0.8250  MAE=0.6034  MAPE=134312622.80%  R²=0.1687
+19:35:52 │ INFO    │   [VAR+Granger] USDJPY
+19:35:52 │ INFO    │     Granger значимых: 5/6
+19:35:52 │ INFO    │     {'Yield10Y': np.float64(0.0), 'UST_10Y': np.float64(0.0), 'FedFunds': np.float64(0.6474), 'VIX': np.float64(0.0), 'SP500': np.float64(0.0)}
+19:35:52 │ INFO    │     VAR(lag=6): RMSE=0.8400  MAE=0.6165  MAPE=158208278.30%  R²=0.1362
+19:35:52 │ INFO    │   [IV-2SLS] USDJPY
+19:35:52 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:35:52 │ INFO    │     2SLS_manual: RMSE=0.7771  MAE=0.5765  MAPE=104207840.29%  R²=0.2617
+19:35:52 │ INFO    │     horizon=5 | controls=controls_causal_pc
+19:35:52 │ INFO    │   [CausalImpact] USDJPY
+19:35:52 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:35:52 │ INFO    │     BSTS_proxy(h=5): RMSE=0.9060  MAE=0.6765  MAPE=26730964.37%  R²=-0.0030
+19:35:52 │ INFO    │   [DML] USDJPY
+19:35:52 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2221, 5) instead.. Использую ручной DML.
+19:35:58 │ INFO    │     DML_manual: RMSE=0.9273  MAE=0.6948  MAPE=77500651.09%  R²=-0.0500
+19:35:58 │ INFO    │   [VAR+Granger] USDJPY
+19:35:58 │ INFO    │     Granger значимых: 5/6
+19:35:58 │ INFO    │     {'Yield10Y': np.float64(0.0), 'UST_10Y': np.float64(0.0), 'FedFunds': np.float64(0.6474), 'VIX': np.float64(0.0), 'SP500': np.float64(0.0)}
+19:35:58 │ INFO    │     VAR(lag=6): RMSE=0.8898  MAE=0.6652  MAPE=43018195.17%  R²=0.0309
+19:35:58 │ INFO    │   [IV-2SLS] USDJPY
+19:35:58 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:35:58 │ INFO    │     2SLS_manual: RMSE=0.9070  MAE=0.6780  MAPE=56464838.85%  R²=-0.0047
+19:35:58 │ INFO    │     horizon=21 | controls=controls_causal_pc
+19:35:58 │ INFO    │   [CausalImpact] USDJPY
+19:35:58 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:35:59 │ INFO    │     BSTS_proxy(h=21): RMSE=0.9069  MAE=0.6750  MAPE=16018320.79%  R²=-0.0002
+19:35:59 │ INFO    │   [DML] USDJPY
+19:35:59 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (2213, 5) instead.. Использую ручной DML.
+19:36:04 │ INFO    │     DML_manual: RMSE=0.9296  MAE=0.6924  MAPE=121444003.80%  R²=-0.0543
+19:36:04 │ INFO    │   [VAR+Granger] USDJPY
+19:36:04 │ INFO    │     Granger значимых: 5/6
+19:36:04 │ INFO    │     {'Yield10Y': np.float64(0.0), 'UST_10Y': np.float64(0.0), 'FedFunds': np.float64(0.6474), 'VIX': np.float64(0.0), 'SP500': np.float64(0.0)}
+19:36:04 │ INFO    │     VAR(lag=6): RMSE=0.9043  MAE=0.6740  MAPE=6482863.73%  R²=-0.0009
+19:36:04 │ INFO    │   [IV-2SLS] USDJPY
+19:36:04 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:36:04 │ INFO    │     2SLS_manual: RMSE=0.9092  MAE=0.6760  MAPE=15686979.78%  R²=-0.0095
+19:36:04 │ INFO    │ 
+════════════════════════════════════════════════════════════
+19:36:04 │ INFO    │   КАУЗАЛЬНЫЕ МОДЕЛИ: US CPI Inflation (CPI)  [freq=ME]
+19:36:04 │ INFO    │ ════════════════════════════════════════════════════════════
+19:36:05 │ INFO    │ 
+  ▸ controls_heuristic: ['PPI_MoM', 'PPI', 'PCE_core', 'WTI_oil', 'PPI_YoY', 'PPI_lag1', 'RetailSales', 'NFP']
+19:36:05 │ INFO    │     horizon=1 | controls=controls_heuristic
+19:36:05 │ INFO    │   [CausalImpact] CPI
+19:36:05 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:05 │ INFO    │     BSTS_proxy(h=1): RMSE=0.4166  MAE=0.3080  MAPE=5990035916.21%  R²=-0.1118
+19:36:05 │ INFO    │   [DML] CPI
+19:36:05 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (94, 5) instead.. Использую ручной DML.
+19:36:05 │ INFO    │     DML_manual: RMSE=0.5759  MAE=0.4789  MAPE=5720885827.33%  R²=-0.9896
+19:36:05 │ INFO    │   [VAR+Granger] CPI
+19:36:05 │ INFO    │     Granger значимых: 6/9
+19:36:05 │ INFO    │     {'PPI': np.float64(0.0059), 'WTI_oil': np.float64(0.0014), 'M2': np.float64(0.0002), 'NFP': np.float64(0.2539), 'RetailSales': np.float64(0.0595)}
+19:36:05 │ INFO    │     VAR(lag=1): RMSE=0.5306  MAE=0.4638  MAPE=6092161121.02%  R²=-0.7038
+19:36:05 │ INFO    │   [IV-2SLS] CPI
+19:36:05 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:05 │ INFO    │     2SLS_manual: RMSE=0.5870  MAE=0.4564  MAPE=9605130278.44%  R²=-1.0670
+19:36:05 │ INFO    │     horizon=3 | controls=controls_heuristic
+19:36:05 │ INFO    │   [CausalImpact] CPI
+19:36:05 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:05 │ INFO    │     BSTS_proxy(h=3): RMSE=0.4339  MAE=0.3593  MAPE=2233422140.52%  R²=-0.2602
+19:36:05 │ INFO    │   [DML] CPI
+19:36:05 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (93, 5) instead.. Использую ручной DML.
+19:36:06 │ INFO    │     DML_manual: RMSE=0.6532  MAE=0.4922  MAPE=7819323132.38%  R²=-1.5047
+19:36:06 │ INFO    │   [VAR+Granger] CPI
+19:36:06 │ INFO    │     Granger значимых: 6/9
+19:36:06 │ INFO    │     {'PPI': np.float64(0.0059), 'WTI_oil': np.float64(0.0014), 'M2': np.float64(0.0002), 'NFP': np.float64(0.2539), 'RetailSales': np.float64(0.0595)}
+19:36:06 │ INFO    │     VAR(lag=1): RMSE=0.4290  MAE=0.3289  MAPE=3949300700.27%  R²=-0.1138
+19:36:06 │ INFO    │   [IV-2SLS] CPI
+19:36:06 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:06 │ INFO    │     2SLS_manual: RMSE=0.5755  MAE=0.4909  MAPE=5110225797.40%  R²=-0.9866
+19:36:06 │ INFO    │     horizon=6 | controls=controls_heuristic
+19:36:06 │ INFO    │   [CausalImpact] CPI
+19:36:06 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:06 │ INFO    │     BSTS_proxy(h=6): RMSE=0.5504  MAE=0.4402  MAPE=3374145502.30%  R²=-0.8846
+19:36:06 │ INFO    │   [DML] CPI
+19:36:06 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (91, 5) instead.. Использую ручной DML.
+19:36:07 │ INFO    │     DML_manual: RMSE=0.6850  MAE=0.5488  MAPE=7509580296.78%  R²=-1.7547
+19:36:07 │ INFO    │   [VAR+Granger] CPI
+19:36:07 │ INFO    │     Granger значимых: 6/9
+19:36:07 │ INFO    │     {'PPI': np.float64(0.0059), 'WTI_oil': np.float64(0.0014), 'M2': np.float64(0.0002), 'NFP': np.float64(0.2539), 'RetailSales': np.float64(0.0595)}
+19:36:07 │ INFO    │     VAR(lag=1): RMSE=0.4399  MAE=0.3476  MAPE=4017306399.04%  R²=-0.1710
+19:36:07 │ INFO    │   [IV-2SLS] CPI
+19:36:07 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:07 │ INFO    │     2SLS_manual: RMSE=0.5909  MAE=0.4773  MAPE=5993617236.65%  R²=-1.0497
+19:36:07 │ INFO    │ 
+  ▸ controls_causal_expert: ['FedFunds', 'Unemployment', 'HousingStarts']
+19:36:07 │ INFO    │     horizon=1 | controls=controls_causal_expert
+19:36:07 │ INFO    │   [CausalImpact] CPI
+19:36:07 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:07 │ INFO    │     BSTS_proxy(h=1): RMSE=0.4162  MAE=0.3404  MAPE=4425646304.79%  R²=-0.1094
+19:36:07 │ INFO    │   [DML] CPI
+19:36:07 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (94, 5) instead.. Использую ручной DML.
+19:36:07 │ INFO    │     DML_manual: RMSE=0.6194  MAE=0.5012  MAPE=7102620209.97%  R²=-1.3015
+19:36:07 │ INFO    │   [VAR+Granger] CPI
+19:36:07 │ INFO    │     Granger значимых: 4/8
+19:36:07 │ INFO    │     {'PPI': np.float64(0.0059), 'WTI_oil': np.float64(0.0014), 'M2': np.float64(0.0002), 'NFP': np.float64(0.2539), 'RetailSales': np.float64(0.0595)}
+19:36:07 │ INFO    │     VAR(lag=6): RMSE=0.6212  MAE=0.4905  MAPE=7967090573.44%  R²=-1.3351
+19:36:07 │ INFO    │   [IV-2SLS] CPI
+19:36:07 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:07 │ INFO    │     2SLS_manual: RMSE=0.5870  MAE=0.4564  MAPE=9605130278.44%  R²=-1.0670
+19:36:07 │ INFO    │     horizon=3 | controls=controls_causal_expert
+19:36:07 │ INFO    │   [CausalImpact] CPI
+19:36:07 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:07 │ INFO    │     BSTS_proxy(h=3): RMSE=0.5239  MAE=0.4345  MAPE=3544830679.34%  R²=-0.8378
+19:36:07 │ INFO    │   [DML] CPI
+19:36:07 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (93, 5) instead.. Использую ручной DML.
+19:36:08 │ INFO    │     DML_manual: RMSE=0.5617  MAE=0.4341  MAPE=4707389733.13%  R²=-0.8524
+19:36:08 │ INFO    │   [VAR+Granger] CPI
+19:36:08 │ INFO    │     Granger значимых: 4/8
+19:36:08 │ INFO    │     {'PPI': np.float64(0.0059), 'WTI_oil': np.float64(0.0014), 'M2': np.float64(0.0002), 'NFP': np.float64(0.2539), 'RetailSales': np.float64(0.0595)}
+19:36:08 │ INFO    │     VAR(lag=6): RMSE=0.6155  MAE=0.5285  MAPE=6020722230.99%  R²=-1.2929
+19:36:08 │ INFO    │   [IV-2SLS] CPI
+19:36:08 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:08 │ INFO    │     2SLS_manual: RMSE=0.5755  MAE=0.4909  MAPE=5110225797.40%  R²=-0.9866
+19:36:08 │ INFO    │     horizon=6 | controls=controls_causal_expert
+19:36:08 │ INFO    │   [CausalImpact] CPI
+19:36:08 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:08 │ INFO    │     BSTS_proxy(h=6): RMSE=0.4466  MAE=0.3688  MAPE=2801474949.00%  R²=-0.2409
+19:36:08 │ INFO    │   [DML] CPI
+19:36:08 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (91, 5) instead.. Использую ручной DML.
+19:36:08 │ INFO    │     DML_manual: RMSE=0.7011  MAE=0.5266  MAPE=3541221724.08%  R²=-1.8857
+19:36:08 │ INFO    │   [VAR+Granger] CPI
+19:36:08 │ INFO    │     Granger значимых: 4/8
+19:36:08 │ INFO    │     {'PPI': np.float64(0.0059), 'WTI_oil': np.float64(0.0014), 'M2': np.float64(0.0002), 'NFP': np.float64(0.2539), 'RetailSales': np.float64(0.0595)}
+19:36:08 │ INFO    │     VAR(lag=6): RMSE=0.5350  MAE=0.4248  MAPE=4801431856.76%  R²=-0.7321
+19:36:08 │ INFO    │   [IV-2SLS] CPI
+19:36:08 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:08 │ INFO    │     2SLS_manual: RMSE=0.5909  MAE=0.4773  MAPE=5993617236.65%  R²=-1.0497
+19:36:08 │ INFO    │ 
+  ▸ controls_causal_pc: ['PPI', 'FedFunds']
+19:36:08 │ INFO    │     horizon=1 | controls=controls_causal_pc
+19:36:08 │ INFO    │   [CausalImpact] CPI
+19:36:08 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:08 │ INFO    │     BSTS_proxy(h=1): RMSE=0.5206  MAE=0.4082  MAPE=5289833416.97%  R²=-0.7360
+19:36:08 │ INFO    │   [DML] CPI
+19:36:08 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (94, 5) instead.. Использую ручной DML.
+19:36:09 │ INFO    │     DML_manual: RMSE=0.6290  MAE=0.5075  MAPE=6909555996.56%  R²=-1.3736
+19:36:09 │ INFO    │   [VAR+Granger] CPI
+19:36:09 │ INFO    │     Granger значимых: 3/6
+19:36:09 │ INFO    │     {'PPI': np.float64(0.0059), 'WTI_oil': np.float64(0.0014), 'M2': np.float64(0.0002), 'NFP': np.float64(0.2539), 'RetailSales': np.float64(0.0595)}
+19:36:09 │ INFO    │     VAR(lag=3): RMSE=0.5163  MAE=0.4143  MAPE=8227511664.66%  R²=-0.6130
+19:36:09 │ INFO    │   [IV-2SLS] CPI
+19:36:09 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:09 │ INFO    │     2SLS_manual: RMSE=0.5870  MAE=0.4564  MAPE=9605130278.44%  R²=-1.0670
+19:36:09 │ INFO    │     horizon=3 | controls=controls_causal_pc
+19:36:09 │ INFO    │   [CausalImpact] CPI
+19:36:09 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:09 │ INFO    │     BSTS_proxy(h=3): RMSE=0.4927  MAE=0.4021  MAPE=3238249069.65%  R²=-0.6252
+19:36:09 │ INFO    │   [DML] CPI
+19:36:09 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (93, 5) instead.. Использую ручной DML.
+19:36:09 │ INFO    │     DML_manual: RMSE=0.6002  MAE=0.4738  MAPE=4790950314.45%  R²=-1.1150
+19:36:09 │ INFO    │   [VAR+Granger] CPI
+19:36:09 │ INFO    │     Granger значимых: 3/6
+19:36:09 │ INFO    │     {'PPI': np.float64(0.0059), 'WTI_oil': np.float64(0.0014), 'M2': np.float64(0.0002), 'NFP': np.float64(0.2539), 'RetailSales': np.float64(0.0595)}
+19:36:09 │ INFO    │     VAR(lag=3): RMSE=0.4652  MAE=0.3649  MAPE=5005049555.45%  R²=-0.3094
+19:36:09 │ INFO    │   [IV-2SLS] CPI
+19:36:09 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:09 │ INFO    │     2SLS_manual: RMSE=0.5755  MAE=0.4909  MAPE=5110225797.40%  R²=-0.9866
+19:36:09 │ INFO    │     horizon=6 | controls=controls_causal_pc
+19:36:09 │ INFO    │   [CausalImpact] CPI
+19:36:09 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:09 │ INFO    │     BSTS_proxy(h=6): RMSE=0.4842  MAE=0.4035  MAPE=2711870398.93%  R²=-0.4586
+19:36:09 │ INFO    │   [DML] CPI
+19:36:09 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (91, 5) instead.. Использую ручной DML.
+19:36:10 │ INFO    │     DML_manual: RMSE=0.6156  MAE=0.4556  MAPE=2826559550.70%  R²=-1.2247
+19:36:10 │ INFO    │   [VAR+Granger] CPI
+19:36:10 │ INFO    │     Granger значимых: 3/6
+19:36:10 │ INFO    │     {'PPI': np.float64(0.0059), 'WTI_oil': np.float64(0.0014), 'M2': np.float64(0.0002), 'NFP': np.float64(0.2539), 'RetailSales': np.float64(0.0595)}
+19:36:10 │ INFO    │     VAR(lag=3): RMSE=0.4643  MAE=0.3774  MAPE=4519484473.71%  R²=-0.3044
+19:36:10 │ INFO    │   [IV-2SLS] CPI
+19:36:10 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:10 │ INFO    │     2SLS_manual: RMSE=0.5909  MAE=0.4773  MAPE=5993617236.65%  R²=-1.0497
+19:36:10 │ INFO    │ 
+════════════════════════════════════════════════════════════
+19:36:10 │ INFO    │   КАУЗАЛЬНЫЕ МОДЕЛИ: Industrial Production (IndProd)  [freq=ME]
+19:36:10 │ INFO    │ ════════════════════════════════════════════════════════════
+19:36:10 │ INFO    │ 
+  ▸ controls_heuristic: ['Unemployment', 'Unemployment_lag1', 'M2_MoM', 'Unemployment_lag3', 'Savings_Rate', 'Unemployment_YoY', 'M2', 'M2_lag1']
+19:36:10 │ INFO    │     horizon=1 | controls=controls_heuristic
+19:36:10 │ INFO    │   [CausalImpact] IndProd
+19:36:10 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:10 │ INFO    │     BSTS_proxy(h=1): RMSE=2.1562  MAE=1.9858  MAPE=1.96%  R²=-6.0112
+19:36:10 │ INFO    │   [DML] IndProd
+19:36:10 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (94, 4) instead.. Использую ручной DML.
+19:36:11 │ INFO    │     DML_manual: RMSE=0.8646  MAE=0.6579  MAPE=0.65%  R²=-0.0145
+19:36:11 │ INFO    │   [VAR+Granger] IndProd
+19:36:11 │ INFO    │     Granger значимых: 9/12
+19:36:11 │ INFO    │     {'NFP': np.float64(0.0021), 'RetailSales': np.float64(0.0), 'WTI_oil': np.float64(0.0), 'FedFunds': np.float64(0.0), 'Unemployment': np.float64(0.0734)}
+19:36:11 │ INFO    │     VAR(lag=6): RMSE=1.0900  MAE=0.8622  MAPE=0.86%  R²=-0.6495
+19:36:11 │ INFO    │   [IV-2SLS] IndProd
+19:36:11 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:11 │ INFO    │     2SLS_manual: RMSE=0.9133  MAE=0.7288  MAPE=0.72%  R²=-0.1320
+19:36:11 │ INFO    │     horizon=3 | controls=controls_heuristic
+19:36:11 │ INFO    │   [CausalImpact] IndProd
+19:36:11 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:11 │ INFO    │     BSTS_proxy(h=3): RMSE=1.1951  MAE=0.9600  MAPE=0.96%  R²=-1.7251
+19:36:11 │ INFO    │   [DML] IndProd
+19:36:11 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (93, 4) instead.. Использую ручной DML.
+19:36:11 │ INFO    │     DML_manual: RMSE=1.7638  MAE=1.1963  MAPE=1.18%  R²=-3.1048
+19:36:11 │ INFO    │   [VAR+Granger] IndProd
+19:36:11 │ INFO    │     Granger значимых: 9/12
+19:36:11 │ INFO    │     {'NFP': np.float64(0.0021), 'RetailSales': np.float64(0.0), 'WTI_oil': np.float64(0.0), 'FedFunds': np.float64(0.0), 'Unemployment': np.float64(0.0734)}
+19:36:11 │ INFO    │     VAR(lag=6): RMSE=1.8241  MAE=1.4359  MAPE=1.42%  R²=-3.6192
+19:36:11 │ INFO    │   [IV-2SLS] IndProd
+19:36:11 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:11 │ INFO    │     2SLS_manual: RMSE=1.1044  MAE=0.9274  MAPE=0.92%  R²=-0.6552
+19:36:11 │ INFO    │     horizon=6 | controls=controls_heuristic
+19:36:11 │ INFO    │   [CausalImpact] IndProd
+19:36:11 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:12 │ INFO    │     BSTS_proxy(h=6): RMSE=0.6495  MAE=0.4901  MAPE=0.49%  R²=0.0402
+19:36:12 │ INFO    │   [DML] IndProd
+19:36:12 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (91, 4) instead.. Использую ручной DML.
+19:36:12 │ INFO    │     DML_manual: RMSE=3.6235  MAE=2.3080  MAPE=2.28%  R²=-16.3230
+19:36:12 │ INFO    │   [VAR+Granger] IndProd
+19:36:12 │ INFO    │     Granger значимых: 9/12
+19:36:12 │ INFO    │     {'NFP': np.float64(0.0021), 'RetailSales': np.float64(0.0), 'WTI_oil': np.float64(0.0), 'FedFunds': np.float64(0.0), 'Unemployment': np.float64(0.0734)}
+19:36:12 │ INFO    │     VAR(lag=6): RMSE=1.9219  MAE=1.4958  MAPE=1.48%  R²=-4.1279
+19:36:12 │ INFO    │   [IV-2SLS] IndProd
+19:36:12 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:12 │ INFO    │     2SLS_manual: RMSE=1.3527  MAE=1.1534  MAPE=1.14%  R²=-1.4141
+19:36:12 │ INFO    │ 
+  ▸ controls_causal_expert: ['Unemployment', 'HousingStarts', 'M2']
+19:36:12 │ INFO    │     horizon=1 | controls=controls_causal_expert
+19:36:12 │ INFO    │   [CausalImpact] IndProd
+19:36:12 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:12 │ INFO    │     BSTS_proxy(h=1): RMSE=2.6580  MAE=2.4849  MAPE=2.46%  R²=-9.6543
+19:36:12 │ INFO    │   [DML] IndProd
+19:36:12 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (94, 4) instead.. Использую ручной DML.
+19:36:13 │ INFO    │     DML_manual: RMSE=0.8789  MAE=0.6714  MAPE=0.66%  R²=-0.0482
+19:36:13 │ INFO    │   [VAR+Granger] IndProd
+19:36:13 │ INFO    │     Granger значимых: 6/7
+19:36:13 │ INFO    │     {'NFP': np.float64(0.0021), 'RetailSales': np.float64(0.0), 'WTI_oil': np.float64(0.0), 'FedFunds': np.float64(0.0), 'Unemployment': np.float64(0.0734)}
+19:36:13 │ INFO    │     VAR(lag=6): RMSE=1.0506  MAE=0.8028  MAPE=0.80%  R²=-0.5324
+19:36:13 │ INFO    │   [IV-2SLS] IndProd
+19:36:13 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:13 │ INFO    │     2SLS_manual: RMSE=0.9133  MAE=0.7288  MAPE=0.72%  R²=-0.1320
+19:36:13 │ INFO    │     horizon=3 | controls=controls_causal_expert
+19:36:13 │ INFO    │   [CausalImpact] IndProd
+19:36:13 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:13 │ INFO    │     BSTS_proxy(h=3): RMSE=0.8352  MAE=0.6332  MAPE=0.63%  R²=-0.3308
+19:36:13 │ INFO    │   [DML] IndProd
+19:36:13 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (93, 4) instead.. Использую ручной DML.
+19:36:13 │ INFO    │     DML_manual: RMSE=2.8754  MAE=1.8149  MAPE=1.79%  R²=-9.9084
+19:36:13 │ INFO    │   [VAR+Granger] IndProd
+19:36:13 │ INFO    │     Granger значимых: 6/7
+19:36:13 │ INFO    │     {'NFP': np.float64(0.0021), 'RetailSales': np.float64(0.0), 'WTI_oil': np.float64(0.0), 'FedFunds': np.float64(0.0), 'Unemployment': np.float64(0.0734)}
+19:36:13 │ INFO    │     VAR(lag=6): RMSE=1.7683  MAE=1.4595  MAPE=1.45%  R²=-3.3409
+19:36:13 │ INFO    │   [IV-2SLS] IndProd
+19:36:13 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:13 │ INFO    │     2SLS_manual: RMSE=1.1044  MAE=0.9274  MAPE=0.92%  R²=-0.6552
+19:36:13 │ INFO    │     horizon=6 | controls=controls_causal_expert
+19:36:13 │ INFO    │   [CausalImpact] IndProd
+19:36:13 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:13 │ INFO    │     BSTS_proxy(h=6): RMSE=0.6729  MAE=0.5264  MAPE=0.52%  R²=-0.0300
+19:36:13 │ INFO    │   [DML] IndProd
+19:36:13 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (91, 4) instead.. Использую ручной DML.
+19:36:14 │ INFO    │     DML_manual: RMSE=3.2706  MAE=1.9510  MAPE=1.93%  R²=-13.1138
+19:36:14 │ INFO    │   [VAR+Granger] IndProd
+19:36:14 │ INFO    │     Granger значимых: 6/7
+19:36:14 │ INFO    │     {'NFP': np.float64(0.0021), 'RetailSales': np.float64(0.0), 'WTI_oil': np.float64(0.0), 'FedFunds': np.float64(0.0), 'Unemployment': np.float64(0.0734)}
+19:36:14 │ INFO    │     VAR(lag=6): RMSE=1.8725  MAE=1.4652  MAPE=1.45%  R²=-3.8674
+19:36:14 │ INFO    │   [IV-2SLS] IndProd
+19:36:14 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:14 │ INFO    │     2SLS_manual: RMSE=1.3527  MAE=1.1534  MAPE=1.14%  R²=-1.4141
+19:36:14 │ INFO    │ 
+  ▸ controls_causal_pc: ['Unemployment', 'M2']
+19:36:14 │ INFO    │     horizon=1 | controls=controls_causal_pc
+19:36:14 │ INFO    │   [CausalImpact] IndProd
+19:36:14 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:14 │ INFO    │     BSTS_proxy(h=1): RMSE=2.7537  MAE=2.5783  MAPE=2.55%  R²=-10.4357
+19:36:14 │ INFO    │   [DML] IndProd
+19:36:14 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (94, 4) instead.. Использую ручной DML.
+19:36:14 │ INFO    │     DML_manual: RMSE=0.8992  MAE=0.7318  MAPE=0.72%  R²=-0.0974
+19:36:14 │ INFO    │   [VAR+Granger] IndProd
+19:36:14 │ INFO    │     Granger значимых: 5/6
+19:36:14 │ INFO    │     {'NFP': np.float64(0.0021), 'RetailSales': np.float64(0.0), 'WTI_oil': np.float64(0.0), 'FedFunds': np.float64(0.0), 'Unemployment': np.float64(0.0734)}
+19:36:14 │ INFO    │     VAR(lag=6): RMSE=1.0671  MAE=0.8279  MAPE=0.82%  R²=-0.5809
+19:36:14 │ INFO    │   [IV-2SLS] IndProd
+19:36:14 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:14 │ INFO    │     2SLS_manual: RMSE=0.9133  MAE=0.7288  MAPE=0.72%  R²=-0.1320
+19:36:14 │ INFO    │     horizon=3 | controls=controls_causal_pc
+19:36:14 │ INFO    │   [CausalImpact] IndProd
+19:36:14 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:14 │ INFO    │     BSTS_proxy(h=3): RMSE=0.8188  MAE=0.6157  MAPE=0.61%  R²=-0.2793
+19:36:14 │ INFO    │   [DML] IndProd
+19:36:14 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (93, 4) instead.. Использую ручной DML.
+19:36:14 │ INFO    │     DML_manual: RMSE=3.2121  MAE=1.8736  MAPE=1.84%  R²=-12.6133
+19:36:14 │ INFO    │   [VAR+Granger] IndProd
+19:36:15 │ INFO    │     Granger значимых: 5/6
+19:36:15 │ INFO    │     {'NFP': np.float64(0.0021), 'RetailSales': np.float64(0.0), 'WTI_oil': np.float64(0.0), 'FedFunds': np.float64(0.0), 'Unemployment': np.float64(0.0734)}
+19:36:15 │ INFO    │     VAR(lag=6): RMSE=1.5793  MAE=1.3167  MAPE=1.30%  R²=-2.4628
+19:36:15 │ INFO    │   [IV-2SLS] IndProd
+19:36:15 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:15 │ INFO    │     2SLS_manual: RMSE=1.1044  MAE=0.9274  MAPE=0.92%  R²=-0.6552
+19:36:15 │ INFO    │     horizon=6 | controls=controls_causal_pc
+19:36:15 │ INFO    │   [CausalImpact] IndProd
+19:36:15 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:15 │ INFO    │     BSTS_proxy(h=6): RMSE=0.6727  MAE=0.5273  MAPE=0.53%  R²=-0.0296
+19:36:15 │ INFO    │   [DML] IndProd
+19:36:15 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (91, 4) instead.. Использую ручной DML.
+19:36:15 │ INFO    │     DML_manual: RMSE=3.1006  MAE=1.9326  MAPE=1.91%  R²=-11.6845
+19:36:15 │ INFO    │   [VAR+Granger] IndProd
+19:36:15 │ INFO    │     Granger значимых: 5/6
+19:36:15 │ INFO    │     {'NFP': np.float64(0.0021), 'RetailSales': np.float64(0.0), 'WTI_oil': np.float64(0.0), 'FedFunds': np.float64(0.0), 'Unemployment': np.float64(0.0734)}
+19:36:15 │ INFO    │     VAR(lag=6): RMSE=1.8102  MAE=1.3039  MAPE=1.29%  R²=-3.5489
+19:36:15 │ INFO    │   [IV-2SLS] IndProd
+19:36:15 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:15 │ INFO    │     2SLS_manual: RMSE=1.3527  MAE=1.1534  MAPE=1.14%  R²=-1.4141
+19:36:15 │ INFO    │ 
+════════════════════════════════════════════════════════════
+19:36:15 │ INFO    │   КАУЗАЛЬНЫЕ МОДЕЛИ: Michigan Consumer Sentiment (UMCSENT)  [freq=ME]
+19:36:15 │ INFO    │ ════════════════════════════════════════════════════════════
+19:36:15 │ INFO    │ 
+  ▸ controls_heuristic: ['Unemployment_MoM', 'RetailSales', 'PPI_lag3', 'NFP', 'M2', 'NFP_MoM', 'M2_YoY', 'M2_MoM']
+19:36:15 │ INFO    │     horizon=1 | controls=controls_heuristic
+19:36:15 │ INFO    │   [CausalImpact] UMCSENT
+19:36:15 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:15 │ INFO    │     BSTS_proxy(h=1): RMSE=4.0424  MAE=3.1053  MAPE=4999994631.16%  R²=0.0898
+19:36:15 │ INFO    │   [DML] UMCSENT
+19:36:15 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (94, 3) instead.. Использую ручной DML.
+19:36:16 │ INFO    │     DML_manual: RMSE=4.2609  MAE=3.4916  MAPE=11846775823.22%  R²=-0.0167
+19:36:16 │ INFO    │   [VAR+Granger] UMCSENT
+19:36:16 │ INFO    │     Granger значимых: 4/10
+19:36:16 │ INFO    │     {'Unemployment': np.float64(0.3266), 'RetailSales': np.float64(0.0241), 'WTI_oil': np.float64(0.0735), 'Unemployment_MoM': np.float64(0.5254), 'PPI_lag3': np.float64(0.0901)}
+19:36:16 │ INFO    │     VAR(lag=4): RMSE=4.2547  MAE=3.4503  MAPE=10395256272.85%  R²=-0.0362
+19:36:16 │ INFO    │   [IV-2SLS] UMCSENT
+19:36:16 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:16 │ INFO    │     2SLS_manual: RMSE=4.2373  MAE=3.1802  MAPE=1509349084.15%  R²=-0.0054
+19:36:16 │ INFO    │     horizon=3 | controls=controls_heuristic
+19:36:16 │ INFO    │   [CausalImpact] UMCSENT
+19:36:16 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:16 │ INFO    │     BSTS_proxy(h=3): RMSE=4.5956  MAE=3.6815  MAPE=1229477172.75%  R²=-0.1112
+19:36:16 │ INFO    │   [DML] UMCSENT
+19:36:16 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (93, 3) instead.. Использую ручной DML.
+19:36:16 │ INFO    │     DML_manual: RMSE=4.9513  MAE=3.8745  MAPE=10368111669.46%  R²=-0.3794
+19:36:16 │ INFO    │   [VAR+Granger] UMCSENT
+19:36:16 │ INFO    │     Granger значимых: 4/10
+19:36:16 │ INFO    │     {'Unemployment': np.float64(0.3266), 'RetailSales': np.float64(0.0241), 'WTI_oil': np.float64(0.0735), 'Unemployment_MoM': np.float64(0.5254), 'PPI_lag3': np.float64(0.0901)}
+19:36:16 │ INFO    │     VAR(lag=4): RMSE=4.8973  MAE=3.8184  MAPE=6471948496.62%  R²=-0.3729
+19:36:16 │ INFO    │   [IV-2SLS] UMCSENT
+19:36:16 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:16 │ INFO    │     2SLS_manual: RMSE=4.2520  MAE=3.0154  MAPE=4163460517.31%  R²=-0.0124
+19:36:16 │ INFO    │     horizon=6 | controls=controls_heuristic
+19:36:16 │ INFO    │   [CausalImpact] UMCSENT
+19:36:16 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:17 │ INFO    │     BSTS_proxy(h=6): RMSE=4.9638  MAE=3.8734  MAPE=2955396128.83%  R²=-0.2276
+19:36:17 │ INFO    │   [DML] UMCSENT
+19:36:17 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (91, 3) instead.. Использую ручной DML.
+19:36:17 │ INFO    │     DML_manual: RMSE=5.3711  MAE=4.3696  MAPE=32820662357.74%  R²=-0.6233
+19:36:17 │ INFO    │   [VAR+Granger] UMCSENT
+19:36:17 │ INFO    │     Granger значимых: 4/10
+19:36:17 │ INFO    │     {'Unemployment': np.float64(0.3266), 'RetailSales': np.float64(0.0241), 'WTI_oil': np.float64(0.0735), 'Unemployment_MoM': np.float64(0.5254), 'PPI_lag3': np.float64(0.0901)}
+19:36:17 │ INFO    │     VAR(lag=4): RMSE=4.5792  MAE=3.5180  MAPE=10377871326.06%  R²=-0.2003
+19:36:17 │ INFO    │   [IV-2SLS] UMCSENT
+19:36:17 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:17 │ INFO    │     2SLS_manual: RMSE=4.1115  MAE=3.0390  MAPE=3540973689.46%  R²=0.0488
+19:36:17 │ INFO    │ 
+  ▸ controls_causal_expert: ['NFP', 'FedFunds', 'Savings_Rate', 'CredCardDebt']
+19:36:17 │ INFO    │     horizon=1 | controls=controls_causal_expert
+19:36:17 │ INFO    │   [CausalImpact] UMCSENT
+19:36:17 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:17 │ INFO    │     BSTS_proxy(h=1): RMSE=4.3049  MAE=3.3462  MAPE=3493986236.03%  R²=-0.0322
+19:36:17 │ INFO    │   [DML] UMCSENT
+19:36:17 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (94, 3) instead.. Использую ручной DML.
+19:36:17 │ INFO    │     DML_manual: RMSE=3.9060  MAE=3.1203  MAPE=12137634272.18%  R²=0.1456
+19:36:17 │ INFO    │   [VAR+Granger] UMCSENT
+19:36:17 │ INFO    │     Granger значимых: 1/7
+19:36:17 │ INFO    │     {'Unemployment': np.float64(0.3266), 'RetailSales': np.float64(0.0241), 'WTI_oil': np.float64(0.0735), 'NFP': np.float64(0.4164), 'FedFunds': np.float64(0.0822)}
+19:36:17 │ INFO    │     VAR(lag=2): RMSE=4.1328  MAE=3.2154  MAPE=3927009220.56%  R²=0.0223
+19:36:17 │ INFO    │   [IV-2SLS] UMCSENT
+19:36:17 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:17 │ INFO    │     2SLS_manual: RMSE=4.2373  MAE=3.1802  MAPE=1509349084.15%  R²=-0.0054
+19:36:17 │ INFO    │     horizon=3 | controls=controls_causal_expert
+19:36:17 │ INFO    │   [CausalImpact] UMCSENT
+19:36:17 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:17 │ INFO    │     BSTS_proxy(h=3): RMSE=4.4447  MAE=3.5454  MAPE=1347258104.41%  R²=-0.0394
+19:36:17 │ INFO    │   [DML] UMCSENT
+19:36:17 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (93, 3) instead.. Использую ручной DML.
+19:36:18 │ INFO    │     DML_manual: RMSE=4.5575  MAE=3.4617  MAPE=11099593856.22%  R²=-0.1687
+19:36:18 │ INFO    │   [VAR+Granger] UMCSENT
+19:36:18 │ INFO    │     Granger значимых: 1/7
+19:36:18 │ INFO    │     {'Unemployment': np.float64(0.3266), 'RetailSales': np.float64(0.0241), 'WTI_oil': np.float64(0.0735), 'NFP': np.float64(0.4164), 'FedFunds': np.float64(0.0822)}
+19:36:18 │ INFO    │     VAR(lag=2): RMSE=4.2704  MAE=3.2877  MAPE=802895332.12%  R²=-0.0439
+19:36:18 │ INFO    │   [IV-2SLS] UMCSENT
+19:36:18 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:18 │ INFO    │     2SLS_manual: RMSE=4.2520  MAE=3.0154  MAPE=4163460517.31%  R²=-0.0124
+19:36:18 │ INFO    │     horizon=6 | controls=controls_causal_expert
+19:36:18 │ INFO    │   [CausalImpact] UMCSENT
+19:36:18 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:18 │ INFO    │     BSTS_proxy(h=6): RMSE=4.6064  MAE=3.6994  MAPE=463124806.87%  R²=-0.0572
+19:36:18 │ INFO    │   [DML] UMCSENT
+19:36:18 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (91, 3) instead.. Использую ручной DML.
+19:36:18 │ INFO    │     DML_manual: RMSE=4.9355  MAE=3.6354  MAPE=14087452689.84%  R²=-0.3707
+19:36:18 │ INFO    │   [VAR+Granger] UMCSENT
+19:36:18 │ INFO    │     Granger значимых: 1/7
+19:36:18 │ INFO    │     {'Unemployment': np.float64(0.3266), 'RetailSales': np.float64(0.0241), 'WTI_oil': np.float64(0.0735), 'NFP': np.float64(0.4164), 'FedFunds': np.float64(0.0822)}
+19:36:18 │ INFO    │     VAR(lag=2): RMSE=4.1987  MAE=3.2519  MAPE=608749653.44%  R²=-0.0091
+19:36:18 │ INFO    │   [IV-2SLS] UMCSENT
+19:36:18 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:18 │ INFO    │     2SLS_manual: RMSE=4.1115  MAE=3.0390  MAPE=3540973689.46%  R²=0.0488
+19:36:18 │ INFO    │ 
+  ▸ controls_causal_pc: ['RetailSales']
+19:36:18 │ INFO    │     horizon=1 | controls=controls_causal_pc
+19:36:18 │ INFO    │   [CausalImpact] UMCSENT
+19:36:18 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:18 │ INFO    │     BSTS_proxy(h=1): RMSE=4.2717  MAE=3.3259  MAPE=2033914867.15%  R²=-0.0163
+19:36:18 │ INFO    │   [DML] UMCSENT
+19:36:18 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (94, 3) instead.. Использую ручной DML.
+19:36:18 │ INFO    │     DML_manual: RMSE=4.3696  MAE=3.3848  MAPE=14496280182.08%  R²=-0.0692
+19:36:18 │ INFO    │   [VAR+Granger] UMCSENT
+19:36:18 │ INFO    │     Granger значимых: 1/3
+19:36:18 │ INFO    │     {'Unemployment': np.float64(0.3266), 'RetailSales': np.float64(0.0241), 'WTI_oil': np.float64(0.0735)}
+19:36:18 │ INFO    │     VAR(lag=2): RMSE=4.1328  MAE=3.2154  MAPE=3927009220.56%  R²=0.0223
+19:36:18 │ INFO    │   [IV-2SLS] UMCSENT
+19:36:18 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:18 │ INFO    │     2SLS_manual: RMSE=4.2373  MAE=3.1802  MAPE=1509349084.15%  R²=-0.0054
+19:36:18 │ INFO    │     horizon=3 | controls=controls_causal_pc
+19:36:18 │ INFO    │   [CausalImpact] UMCSENT
+19:36:18 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:19 │ INFO    │     BSTS_proxy(h=3): RMSE=4.3834  MAE=3.5080  MAPE=1227153742.42%  R²=-0.0110
+19:36:19 │ INFO    │   [DML] UMCSENT
+19:36:19 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (93, 3) instead.. Использую ручной DML.
+19:36:19 │ INFO    │     DML_manual: RMSE=4.7942  MAE=3.4817  MAPE=6518022174.10%  R²=-0.2933
+19:36:19 │ INFO    │   [VAR+Granger] UMCSENT
+19:36:19 │ INFO    │     Granger значимых: 1/3
+19:36:19 │ INFO    │     {'Unemployment': np.float64(0.3266), 'RetailSales': np.float64(0.0241), 'WTI_oil': np.float64(0.0735)}
+19:36:19 │ INFO    │     VAR(lag=2): RMSE=4.2704  MAE=3.2877  MAPE=802895332.12%  R²=-0.0439
+19:36:19 │ INFO    │   [IV-2SLS] UMCSENT
+19:36:19 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:19 │ INFO    │     2SLS_manual: RMSE=4.2520  MAE=3.0154  MAPE=4163460517.31%  R²=-0.0124
+19:36:19 │ INFO    │     horizon=6 | controls=controls_causal_pc
+19:36:19 │ INFO    │   [CausalImpact] UMCSENT
+19:36:19 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:19 │ INFO    │     BSTS_proxy(h=6): RMSE=4.4923  MAE=3.5871  MAPE=513034933.39%  R²=-0.0054
+19:36:19 │ INFO    │   [DML] UMCSENT
+19:36:19 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (91, 3) instead.. Использую ручной DML.
+19:36:19 │ INFO    │     DML_manual: RMSE=5.2015  MAE=3.7589  MAPE=8395134963.74%  R²=-0.5224
+19:36:19 │ INFO    │   [VAR+Granger] UMCSENT
+19:36:19 │ INFO    │     Granger значимых: 1/3
+19:36:19 │ INFO    │     {'Unemployment': np.float64(0.3266), 'RetailSales': np.float64(0.0241), 'WTI_oil': np.float64(0.0735)}
+19:36:19 │ INFO    │     VAR(lag=2): RMSE=4.1987  MAE=3.2519  MAPE=608749653.44%  R²=-0.0091
+19:36:19 │ INFO    │   [IV-2SLS] UMCSENT
+19:36:19 │ WARNING │     2SLS: нет инструментов или эндогенных переменных
+19:36:19 │ INFO    │     2SLS_manual: RMSE=4.1115  MAE=3.0390  MAPE=3540973689.46%  R²=0.0488
+19:36:19 │ INFO    │ 
+════════════════════════════════════════════════════════════
+19:36:19 │ INFO    │   КАУЗАЛЬНЫЕ МОДЕЛИ: Bitcoin (BTC)  [freq=D]
+19:36:19 │ INFO    │ ════════════════════════════════════════════════════════════
+19:36:23 │ INFO    │ 
+  ▸ controls_heuristic: ['BNB', 'XRP', 'SOL', 'NASDAQ', 'SP500']
+19:36:23 │ INFO    │     horizon=1 | controls=controls_heuristic
+19:36:23 │ INFO    │   [CausalImpact] BTC
+19:36:23 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:23 │ INFO    │     BSTS_proxy(h=1): RMSE=2294.8443  MAE=1654.8741  MAPE=166.16%  R²=-0.1556
+19:36:23 │ INFO    │   [DML] BTC
+19:36:23 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1162, 5) instead.. Использую ручной DML.
+19:36:28 │ INFO    │     DML_manual: RMSE=2240.4552  MAE=1621.9328  MAPE=228.13%  R²=-0.1014
+19:36:28 │ INFO    │   [VAR+Granger] BTC
+19:36:28 │ INFO    │     Granger значимых: 2/9
+19:36:28 │ INFO    │     {'M2': np.float64(0.6169), 'DXY': np.float64(0.8102), 'SP500': np.float64(0.6964), 'BTC_Volume': np.float64(0.0019), 'FedFunds': np.float64(0.69)}
+19:36:28 │ INFO    │     VAR(lag=6): RMSE=2168.3700  MAE=1553.4648  MAPE=155.45%  R²=-0.0340
+19:36:28 │ INFO    │   [IV-2SLS] BTC
+19:36:28 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:36:28 │ INFO    │     2SLS_manual: RMSE=2148.5395  MAE=1546.7703  MAPE=122.67%  R²=-0.0152
+19:36:28 │ INFO    │     horizon=5 | controls=controls_heuristic
+19:36:28 │ INFO    │   [CausalImpact] BTC
+19:36:28 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:29 │ INFO    │     BSTS_proxy(h=5): RMSE=2156.0082  MAE=1555.5293  MAPE=141.73%  R²=-0.0126
+19:36:29 │ INFO    │   [DML] BTC
+19:36:29 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1160, 5) instead.. Использую ручной DML.
+19:36:34 │ INFO    │     DML_manual: RMSE=2256.9882  MAE=1650.2294  MAPE=199.91%  R²=-0.1157
+19:36:34 │ INFO    │   [VAR+Granger] BTC
+19:36:34 │ INFO    │     Granger значимых: 2/9
+19:36:34 │ INFO    │     {'M2': np.float64(0.6169), 'DXY': np.float64(0.8102), 'SP500': np.float64(0.6964), 'BTC_Volume': np.float64(0.0019), 'FedFunds': np.float64(0.69)}
+19:36:34 │ INFO    │     VAR(lag=6): RMSE=2164.6997  MAE=1553.3761  MAPE=148.97%  R²=-0.0305
+19:36:34 │ INFO    │   [IV-2SLS] BTC
+19:36:34 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:36:34 │ INFO    │     2SLS_manual: RMSE=2153.9430  MAE=1552.3646  MAPE=136.01%  R²=-0.0180
+19:36:34 │ INFO    │     horizon=21 | controls=controls_heuristic
+19:36:34 │ INFO    │   [CausalImpact] BTC
+19:36:34 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:34 │ INFO    │     BSTS_proxy(h=21): RMSE=2294.9165  MAE=1644.4027  MAPE=145.34%  R²=-0.1297
+19:36:34 │ INFO    │   [DML] BTC
+19:36:34 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1151, 5) instead.. Использую ручной DML.
+19:36:39 │ INFO    │     DML_manual: RMSE=2188.1150  MAE=1638.0917  MAPE=280.72%  R²=-0.0435
+19:36:39 │ INFO    │   [VAR+Granger] BTC
+19:36:40 │ INFO    │     Granger значимых: 2/9
+19:36:40 │ INFO    │     {'M2': np.float64(0.6169), 'DXY': np.float64(0.8102), 'SP500': np.float64(0.6964), 'BTC_Volume': np.float64(0.0019), 'FedFunds': np.float64(0.69)}
+19:36:40 │ INFO    │     VAR(lag=6): RMSE=2136.9296  MAE=1535.2573  MAPE=116.43%  R²=-0.0042
+19:36:40 │ INFO    │   [IV-2SLS] BTC
+19:36:40 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:36:40 │ INFO    │     2SLS_manual: RMSE=2129.8036  MAE=1534.1302  MAPE=146.65%  R²=0.0092
+19:36:40 │ INFO    │ 
+  ▸ controls_causal_expert: ['VIX', 'Gold', 'Yield10Y']
+19:36:40 │ INFO    │     horizon=1 | controls=controls_causal_expert
+19:36:40 │ INFO    │   [CausalImpact] BTC
+19:36:40 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:40 │ INFO    │     BSTS_proxy(h=1): RMSE=2153.3094  MAE=1551.3978  MAPE=163.99%  R²=-0.0174
+19:36:40 │ INFO    │   [DML] BTC
+19:36:40 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1162, 5) instead.. Использую ручной DML.
+19:36:44 │ INFO    │     DML_manual: RMSE=2229.1803  MAE=1628.5857  MAPE=249.88%  R²=-0.0904
+19:36:44 │ INFO    │   [VAR+Granger] BTC
+19:36:44 │ INFO    │     Granger значимых: 1/8
+19:36:44 │ INFO    │     {'M2': np.float64(0.6169), 'DXY': np.float64(0.8102), 'SP500': np.float64(0.6964), 'BTC_Volume': np.float64(0.0019), 'FedFunds': np.float64(0.69)}
+19:36:44 │ INFO    │     VAR(lag=6): RMSE=2151.0267  MAE=1545.3317  MAPE=150.10%  R²=-0.0175
+19:36:44 │ INFO    │   [IV-2SLS] BTC
+19:36:44 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:36:44 │ INFO    │     2SLS_manual: RMSE=2148.5395  MAE=1546.7703  MAPE=122.67%  R²=-0.0152
+19:36:44 │ INFO    │     horizon=5 | controls=controls_causal_expert
+19:36:44 │ INFO    │   [CausalImpact] BTC
+19:36:44 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:44 │ INFO    │     BSTS_proxy(h=5): RMSE=2163.2795  MAE=1564.5645  MAPE=153.65%  R²=-0.0195
+19:36:44 │ INFO    │   [DML] BTC
+19:36:44 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1160, 5) instead.. Использую ручной DML.
+19:36:48 │ INFO    │     DML_manual: RMSE=2204.2020  MAE=1601.8575  MAPE=195.34%  R²=-0.0641
+19:36:48 │ INFO    │   [VAR+Granger] BTC
+19:36:48 │ INFO    │     Granger значимых: 1/8
+19:36:48 │ INFO    │     {'M2': np.float64(0.6169), 'DXY': np.float64(0.8102), 'SP500': np.float64(0.6964), 'BTC_Volume': np.float64(0.0019), 'FedFunds': np.float64(0.69)}
+19:36:48 │ INFO    │     VAR(lag=6): RMSE=2159.8734  MAE=1553.2273  MAPE=141.97%  R²=-0.0259
+19:36:48 │ INFO    │   [IV-2SLS] BTC
+19:36:48 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:36:48 │ INFO    │     2SLS_manual: RMSE=2153.9430  MAE=1552.3646  MAPE=136.01%  R²=-0.0180
+19:36:48 │ INFO    │     horizon=21 | controls=controls_causal_expert
+19:36:48 │ INFO    │   [CausalImpact] BTC
+19:36:48 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:49 │ INFO    │     BSTS_proxy(h=21): RMSE=2167.3759  MAE=1558.7435  MAPE=125.00%  R²=-0.0076
+19:36:49 │ INFO    │   [DML] BTC
+19:36:49 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1151, 5) instead.. Использую ручной DML.
+19:36:52 │ INFO    │     DML_manual: RMSE=2176.3368  MAE=1611.1071  MAPE=305.68%  R²=-0.0323
+19:36:52 │ INFO    │   [VAR+Granger] BTC
+19:36:52 │ INFO    │     Granger значимых: 1/8
+19:36:52 │ INFO    │     {'M2': np.float64(0.6169), 'DXY': np.float64(0.8102), 'SP500': np.float64(0.6964), 'BTC_Volume': np.float64(0.0019), 'FedFunds': np.float64(0.69)}
+19:36:53 │ INFO    │     VAR(lag=6): RMSE=2136.8588  MAE=1535.2671  MAPE=116.48%  R²=-0.0042
+19:36:53 │ INFO    │   [IV-2SLS] BTC
+19:36:53 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:36:53 │ INFO    │     2SLS_manual: RMSE=2129.8036  MAE=1534.1302  MAPE=146.65%  R²=0.0092
+19:36:53 │ INFO    │ 
+  ▸ controls_causal_pc: ['SP500']
+19:36:53 │ INFO    │     horizon=1 | controls=controls_causal_pc
+19:36:53 │ INFO    │   [CausalImpact] BTC
+19:36:53 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:53 │ INFO    │     BSTS_proxy(h=1): RMSE=2169.0519  MAE=1557.3009  MAPE=149.91%  R²=-0.0324
+19:36:53 │ INFO    │   [DML] BTC
+19:36:53 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1162, 5) instead.. Использую ручной DML.
+19:36:55 │ INFO    │     DML_manual: RMSE=2228.9791  MAE=1620.6621  MAPE=196.53%  R²=-0.0902
+19:36:55 │ INFO    │   [VAR+Granger] BTC
+19:36:55 │ INFO    │     Granger значимых: 1/5
+19:36:55 │ INFO    │     {'M2': np.float64(0.6169), 'DXY': np.float64(0.8102), 'SP500': np.float64(0.6964), 'BTC_Volume': np.float64(0.0019), 'FedFunds': np.float64(0.69)}
+19:36:55 │ INFO    │     VAR(lag=6): RMSE=2151.0267  MAE=1545.3317  MAPE=150.10%  R²=-0.0175
+19:36:55 │ INFO    │   [IV-2SLS] BTC
+19:36:55 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:36:55 │ INFO    │     2SLS_manual: RMSE=2148.5395  MAE=1546.7703  MAPE=122.67%  R²=-0.0152
+19:36:55 │ INFO    │     horizon=5 | controls=controls_causal_pc
+19:36:55 │ INFO    │   [CausalImpact] BTC
+19:36:55 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:56 │ INFO    │     BSTS_proxy(h=5): RMSE=2150.1361  MAE=1549.3732  MAPE=136.96%  R²=-0.0071
+19:36:56 │ INFO    │   [DML] BTC
+19:36:56 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1160, 5) instead.. Использую ручной DML.
+19:36:58 │ INFO    │     DML_manual: RMSE=2215.4234  MAE=1613.7844  MAPE=219.33%  R²=-0.0750
+19:36:58 │ INFO    │   [VAR+Granger] BTC
+19:36:58 │ INFO    │     Granger значимых: 1/5
+19:36:58 │ INFO    │     {'M2': np.float64(0.6169), 'DXY': np.float64(0.8102), 'SP500': np.float64(0.6964), 'BTC_Volume': np.float64(0.0019), 'FedFunds': np.float64(0.69)}
+19:36:58 │ INFO    │     VAR(lag=6): RMSE=2159.8734  MAE=1553.2273  MAPE=141.97%  R²=-0.0259
+19:36:58 │ INFO    │   [IV-2SLS] BTC
+19:36:58 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:36:58 │ INFO    │     2SLS_manual: RMSE=2153.9430  MAE=1552.3646  MAPE=136.01%  R²=-0.0180
+19:36:58 │ INFO    │     horizon=21 | controls=controls_causal_pc
+19:36:58 │ INFO    │   [CausalImpact] BTC
+19:36:58 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:36:58 │ INFO    │     BSTS_proxy(h=21): RMSE=2198.4732  MAE=1569.5146  MAPE=133.47%  R²=-0.0367
+19:36:58 │ INFO    │   [DML] BTC
+19:36:58 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1151, 5) instead.. Использую ручной DML.
+19:37:01 │ INFO    │     DML_manual: RMSE=2203.7839  MAE=1628.7526  MAPE=287.02%  R²=-0.0585
+19:37:01 │ INFO    │   [VAR+Granger] BTC
+19:37:01 │ INFO    │     Granger значимых: 1/5
+19:37:01 │ INFO    │     {'M2': np.float64(0.6169), 'DXY': np.float64(0.8102), 'SP500': np.float64(0.6964), 'BTC_Volume': np.float64(0.0019), 'FedFunds': np.float64(0.69)}
+19:37:01 │ INFO    │     VAR(lag=6): RMSE=2136.8588  MAE=1535.2671  MAPE=116.48%  R²=-0.0042
+19:37:01 │ INFO    │   [IV-2SLS] BTC
+19:37:01 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:37:01 │ INFO    │     2SLS_manual: RMSE=2129.8036  MAE=1534.1302  MAPE=146.65%  R²=0.0092
+19:37:01 │ INFO    │ 
+════════════════════════════════════════════════════════════
+19:37:01 │ INFO    │   КАУЗАЛЬНЫЕ МОДЕЛИ: Ethereum (ETH)  [freq=D]
+19:37:01 │ INFO    │ ════════════════════════════════════════════════════════════
+19:37:04 │ INFO    │ 
+  ▸ controls_heuristic: ['BNB', 'SOL', 'XRP', 'NASDAQ', 'SP500']
+19:37:04 │ INFO    │     horizon=1 | controls=controls_heuristic
+19:37:04 │ INFO    │   [CausalImpact] ETH
+19:37:04 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:37:04 │ INFO    │     BSTS_proxy(h=1): RMSE=127.6632  MAE=87.4330  MAPE=681.15%  R²=-0.2442
+19:37:04 │ INFO    │   [DML] ETH
+19:37:04 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1162, 5) instead.. Использую ручной DML.
+19:37:09 │ INFO    │     DML_manual: RMSE=121.4980  MAE=84.5274  MAPE=3118.63%  R²=-0.1288
+19:37:09 │ INFO    │   [VAR+Granger] ETH
+19:37:09 │ INFO    │     Granger значимых: 2/8
+19:37:09 │ INFO    │     {'M2': np.float64(0.433), 'DXY': np.float64(0.4025), 'SP500': np.float64(0.514), 'ETH_Volume': np.float64(0.0936), 'SOL': np.float64(0.0142)}
+19:37:09 │ INFO    │     VAR(lag=6): RMSE=116.7771  MAE=81.6573  MAPE=3013.82%  R²=-0.0434
+19:37:09 │ INFO    │   [IV-2SLS] ETH
+19:37:09 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:37:09 │ INFO    │     2SLS_manual: RMSE=114.8404  MAE=78.8161  MAPE=131.81%  R²=-0.0091
+19:37:09 │ INFO    │     horizon=5 | controls=controls_heuristic
+19:37:09 │ INFO    │   [CausalImpact] ETH
+19:37:09 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:37:09 │ INFO    │     BSTS_proxy(h=5): RMSE=117.5231  MAE=80.6119  MAPE=357.24%  R²=-0.0474
+19:37:09 │ INFO    │   [DML] ETH
+19:37:10 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1160, 5) instead.. Использую ручной DML.
+19:37:14 │ INFO    │     DML_manual: RMSE=123.4265  MAE=85.2135  MAPE=884.84%  R²=-0.1623
+19:37:14 │ INFO    │   [VAR+Granger] ETH
+19:37:14 │ INFO    │     Granger значимых: 2/8
+19:37:14 │ INFO    │     {'M2': np.float64(0.433), 'DXY': np.float64(0.4025), 'SP500': np.float64(0.514), 'ETH_Volume': np.float64(0.0936), 'SOL': np.float64(0.0142)}
+19:37:15 │ INFO    │     VAR(lag=6): RMSE=115.6458  MAE=78.9985  MAPE=420.28%  R²=-0.0233
+19:37:15 │ INFO    │   [IV-2SLS] ETH
+19:37:15 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:37:15 │ INFO    │     2SLS_manual: RMSE=115.0831  MAE=79.2109  MAPE=478.76%  R²=-0.0127
+19:37:15 │ INFO    │     horizon=21 | controls=controls_heuristic
+19:37:15 │ INFO    │   [CausalImpact] ETH
+19:37:15 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:37:15 │ INFO    │     BSTS_proxy(h=21): RMSE=113.5337  MAE=78.1925  MAPE=448.33%  R²=0.0438
+19:37:15 │ INFO    │   [DML] ETH
+19:37:15 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1151, 5) instead.. Использую ручной DML.
+19:37:20 │ INFO    │     DML_manual: RMSE=120.7145  MAE=83.9907  MAPE=3114.48%  R²=-0.1059
+19:37:20 │ INFO    │   [VAR+Granger] ETH
+19:37:20 │ INFO    │     Granger значимых: 2/8
+19:37:20 │ INFO    │     {'M2': np.float64(0.433), 'DXY': np.float64(0.4025), 'SP500': np.float64(0.514), 'ETH_Volume': np.float64(0.0936), 'SOL': np.float64(0.0142)}
+19:37:20 │ INFO    │     VAR(lag=6): RMSE=114.4077  MAE=78.3267  MAPE=287.00%  R²=-0.0015
+19:37:20 │ INFO    │   [IV-2SLS] ETH
+19:37:20 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:37:20 │ INFO    │     2SLS_manual: RMSE=114.4037  MAE=78.5179  MAPE=155.00%  R²=0.0049
+19:37:20 │ INFO    │ 
+  ▸ controls_causal_expert: ['VIX', 'Gold', 'Yield10Y', 'FedFunds']
+19:37:20 │ INFO    │     horizon=1 | controls=controls_causal_expert
+19:37:20 │ INFO    │   [CausalImpact] ETH
+19:37:20 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:37:20 │ INFO    │     BSTS_proxy(h=1): RMSE=114.5029  MAE=78.4764  MAPE=292.28%  R²=-0.0009
+19:37:20 │ INFO    │   [DML] ETH
+19:37:20 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1162, 5) instead.. Использую ручной DML.
+19:37:25 │ INFO    │     DML_manual: RMSE=121.0749  MAE=84.2899  MAPE=961.77%  R²=-0.1209
+19:37:25 │ INFO    │   [VAR+Granger] ETH
+19:37:25 │ INFO    │     Granger значимых: 1/9
+19:37:25 │ INFO    │     {'M2': np.float64(0.433), 'DXY': np.float64(0.4025), 'SP500': np.float64(0.514), 'ETH_Volume': np.float64(0.0936), 'SOL': np.float64(0.0142)}
+19:37:25 │ INFO    │     VAR(lag=6): RMSE=115.3670  MAE=79.8842  MAPE=1647.60%  R²=-0.0184
+19:37:25 │ INFO    │   [IV-2SLS] ETH
+19:37:25 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:37:25 │ INFO    │     2SLS_manual: RMSE=114.8404  MAE=78.8161  MAPE=131.81%  R²=-0.0091
+19:37:25 │ INFO    │     horizon=5 | controls=controls_causal_expert
+19:37:25 │ INFO    │   [CausalImpact] ETH
+19:37:25 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:37:25 │ INFO    │     BSTS_proxy(h=5): RMSE=115.0291  MAE=78.7414  MAPE=420.62%  R²=-0.0035
+19:37:25 │ INFO    │   [DML] ETH
+19:37:25 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1160, 5) instead.. Использую ручной DML.
+19:37:29 │ INFO    │     DML_manual: RMSE=128.8708  MAE=89.2877  MAPE=3255.60%  R²=-0.2671
+19:37:29 │ INFO    │   [VAR+Granger] ETH
+19:37:29 │ INFO    │     Granger значимых: 1/9
+19:37:29 │ INFO    │     {'M2': np.float64(0.433), 'DXY': np.float64(0.4025), 'SP500': np.float64(0.514), 'ETH_Volume': np.float64(0.0936), 'SOL': np.float64(0.0142)}
+19:37:29 │ INFO    │     VAR(lag=6): RMSE=115.0087  MAE=78.8709  MAPE=697.31%  R²=-0.0121
+19:37:29 │ INFO    │   [IV-2SLS] ETH
+19:37:29 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:37:29 │ INFO    │     2SLS_manual: RMSE=115.0831  MAE=79.2109  MAPE=478.76%  R²=-0.0127
+19:37:29 │ INFO    │     horizon=21 | controls=controls_causal_expert
+19:37:29 │ INFO    │   [CausalImpact] ETH
+19:37:29 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:37:30 │ INFO    │     BSTS_proxy(h=21): RMSE=116.3940  MAE=79.8559  MAPE=309.00%  R²=-0.0050
+19:37:30 │ INFO    │   [DML] ETH
+19:37:30 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1151, 5) instead.. Использую ручной DML.
+19:37:34 │ INFO    │     DML_manual: RMSE=120.8550  MAE=84.6125  MAPE=3778.57%  R²=-0.1085
+19:37:34 │ INFO    │   [VAR+Granger] ETH
+19:37:34 │ INFO    │     Granger значимых: 1/9
+19:37:34 │ INFO    │     {'M2': np.float64(0.433), 'DXY': np.float64(0.4025), 'SP500': np.float64(0.514), 'ETH_Volume': np.float64(0.0936), 'SOL': np.float64(0.0142)}
+19:37:34 │ INFO    │     VAR(lag=6): RMSE=114.4065  MAE=78.3255  MAPE=286.57%  R²=-0.0015
+19:37:34 │ INFO    │   [IV-2SLS] ETH
+19:37:34 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:37:34 │ INFO    │     2SLS_manual: RMSE=114.4037  MAE=78.5179  MAPE=155.00%  R²=0.0049
+19:37:34 │ INFO    │ 
+  ▸ controls_causal_pc: ['DXY', 'SP500', 'ETH_DailyRange']
+19:37:34 │ INFO    │     horizon=1 | controls=controls_causal_pc
+19:37:34 │ INFO    │   [CausalImpact] ETH
+19:37:34 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:37:34 │ INFO    │     BSTS_proxy(h=1): RMSE=114.2597  MAE=78.3793  MAPE=235.52%  R²=0.0033
+19:37:34 │ INFO    │   [DML] ETH
+19:37:34 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1162, 5) instead.. Использую ручной DML.
+19:37:38 │ INFO    │     DML_manual: RMSE=123.0581  MAE=85.5899  MAPE=572.13%  R²=-0.1580
+19:37:38 │ INFO    │   [VAR+Granger] ETH
+19:37:38 │ INFO    │     Granger значимых: 1/6
+19:37:38 │ INFO    │     {'M2': np.float64(0.433), 'DXY': np.float64(0.4025), 'SP500': np.float64(0.514), 'ETH_Volume': np.float64(0.0936), 'SOL': np.float64(0.0142)}
+19:37:38 │ INFO    │     VAR(lag=6): RMSE=115.3670  MAE=79.8842  MAPE=1647.60%  R²=-0.0184
+19:37:38 │ INFO    │   [IV-2SLS] ETH
+19:37:38 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:37:38 │ INFO    │     2SLS_manual: RMSE=114.8404  MAE=78.8161  MAPE=131.81%  R²=-0.0091
+19:37:38 │ INFO    │     horizon=5 | controls=controls_causal_pc
+19:37:38 │ INFO    │   [CausalImpact] ETH
+19:37:38 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:37:38 │ INFO    │     BSTS_proxy(h=5): RMSE=115.4414  MAE=79.1424  MAPE=235.91%  R²=-0.0107
+19:37:38 │ INFO    │   [DML] ETH
+19:37:38 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1160, 5) instead.. Использую ручной DML.
+19:37:42 │ INFO    │     DML_manual: RMSE=125.6744  MAE=84.9106  MAPE=1088.69%  R²=-0.2051
+19:37:42 │ INFO    │   [VAR+Granger] ETH
+19:37:42 │ INFO    │     Granger значимых: 1/6
+19:37:42 │ INFO    │     {'M2': np.float64(0.433), 'DXY': np.float64(0.4025), 'SP500': np.float64(0.514), 'ETH_Volume': np.float64(0.0936), 'SOL': np.float64(0.0142)}
+19:37:42 │ INFO    │     VAR(lag=6): RMSE=115.0087  MAE=78.8709  MAPE=697.31%  R²=-0.0121
+19:37:42 │ INFO    │   [IV-2SLS] ETH
+19:37:42 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:37:42 │ INFO    │     2SLS_manual: RMSE=115.0831  MAE=79.2109  MAPE=478.76%  R²=-0.0127
+19:37:42 │ INFO    │     horizon=21 | controls=controls_causal_pc
+19:37:42 │ INFO    │   [CausalImpact] ETH
+19:37:42 │ WARNING │     causalimpact не установлен, использую BSTS proxy
+19:37:42 │ INFO    │     BSTS_proxy(h=21): RMSE=117.7308  MAE=80.6231  MAPE=609.17%  R²=-0.0282
+19:37:42 │ INFO    │   [DML] ETH
+19:37:42 │ WARNING │     EconML DML: y should be a 1d array, got an array of shape (1151, 5) instead.. Использую ручной DML.
+19:37:46 │ INFO    │     DML_manual: RMSE=119.8570  MAE=84.2169  MAPE=2956.37%  R²=-0.0903
+19:37:46 │ INFO    │   [VAR+Granger] ETH
+19:37:46 │ INFO    │     Granger значимых: 1/6
+19:37:46 │ INFO    │     {'M2': np.float64(0.433), 'DXY': np.float64(0.4025), 'SP500': np.float64(0.514), 'ETH_Volume': np.float64(0.0936), 'SOL': np.float64(0.0142)}
+19:37:46 │ INFO    │     VAR(lag=6): RMSE=114.4065  MAE=78.3255  MAPE=286.57%  R²=-0.0015
+19:37:46 │ INFO    │   [IV-2SLS] ETH
+19:37:46 │ WARNING │     linearmodels 2SLS ошибка: The number of instruments (1) must be at least as large as the number of endogenous regressors (5).
+19:37:46 │ INFO    │     2SLS_manual: RMSE=114.4037  MAE=78.5179  MAPE=155.00%  R²=0.0049
+19:37:47 │ INFO    │ 
+✓ Результаты step3 сохранены: results\step3_causal_models.json
+19:37:47 │ INFO    │ 
+═══════════════════════════════════════════════════════
+19:37:47 │ INFO    │   ШАГ 4: Baseline модели (без каузальной коррекции)
+19:37:47 │ INFO    │ ═══════════════════════════════════════════════════════
+19:37:47 │ INFO    │ 
+════════════════════════════════════════════════════════════
+19:37:47 │ INFO    │   BASELINE МОДЕЛИ: WTI Crude Oil (WTI_oil)  [freq=D]
+19:37:47 │ INFO    │ ════════════════════════════════════════════════════════════
+19:37:50 │ INFO    │ 
+  ▸ horizon = 1
+19:37:50 │ INFO    │   [ARIMA] WTI_oil
+19:37:54 │ WARNING │     auto_arima error: 0
+19:45:40 │ INFO    │     ARIMA(2, 0, 2): RMSE=2.3697  MAE=1.7288  MAPE=445409361.09%  R²=-0.9119
+19:45:40 │ INFO    │   [Prophet] WTI_oil
+19:45:40 │ INFO    │ Chain [1] start processing
+19:45:42 │ INFO    │ Chain [1] done processing
+19:45:42 │ INFO    │     Prophet: RMSE=1.6532  MAE=1.1458  MAPE=1.59%  R²=0.9645
+19:45:42 │ INFO    │   [RandomForest] WTI_oil
+19:45:43 │ INFO    │     RandomForest: RMSE=1.7681  MAE=1.2307  MAPE=24491587.61%  R²=-0.0628
+19:45:43 │ INFO    │   [LSTM] WTI_oil
+19:46:10 │ INFO    │     epoch 10/30 loss=0.3739
+19:46:27 │ INFO    │     epoch 20/30 loss=0.1762
+19:46:44 │ INFO    │     epoch 30/30 loss=0.1049
+19:46:44 │ INFO    │     LSTM_PyTorch: RMSE=19.5900  MAE=17.7238  MAPE=25.72%  R²=-3.9787
+19:46:44 │ INFO    │ 
+  ▸ horizon = 5
+19:46:44 │ INFO    │   [ARIMA] WTI_oil
+19:46:48 │ WARNING │     auto_arima error: 4
+19:54:35 │ INFO    │     ARIMA(2, 0, 2): RMSE=2.3697  MAE=1.7288  MAPE=445409361.09%  R²=-0.9119
+19:54:35 │ INFO    │   [Prophet] WTI_oil
+19:54:36 │ INFO    │ Chain [1] start processing
+19:54:37 │ INFO    │ Chain [1] done processing
+19:54:37 │ INFO    │     Prophet: RMSE=1.6532  MAE=1.1458  MAPE=1.59%  R²=0.9645
+19:54:37 │ INFO    │   [RandomForest] WTI_oil
+19:54:38 │ INFO    │     RandomForest: RMSE=1.7340  MAE=1.2251  MAPE=42776407.06%  R²=-0.0210
+19:54:38 │ INFO    │   [LSTM] WTI_oil
+19:54:54 │ INFO    │     epoch 10/30 loss=0.5284
+19:55:10 │ INFO    │     epoch 20/30 loss=0.4144
+19:55:26 │ INFO    │     epoch 30/30 loss=0.3111
+19:55:26 │ INFO    │     LSTM_PyTorch: RMSE=41.1674  MAE=36.9322  MAPE=53.67%  R²=-20.8857
+19:55:26 │ INFO    │ 
+  ▸ horizon = 21
+19:55:26 │ INFO    │   [ARIMA] WTI_oil
+19:55:30 │ WARNING │     auto_arima error: 20
+20:03:25 │ INFO    │     ARIMA(2, 0, 2): RMSE=2.3697  MAE=1.7288  MAPE=445409361.09%  R²=-0.9119
+20:03:25 │ INFO    │   [Prophet] WTI_oil
+20:03:25 │ INFO    │ Chain [1] start processing
+20:03:27 │ INFO    │ Chain [1] done processing
+20:03:27 │ INFO    │     Prophet: RMSE=1.6532  MAE=1.1458  MAPE=1.59%  R²=0.9645
+20:03:27 │ INFO    │   [RandomForest] WTI_oil
+20:03:27 │ INFO    │     RandomForest: RMSE=1.7217  MAE=1.2125  MAPE=50081471.07%  R²=-0.0053
+20:03:28 │ INFO    │   [LSTM] WTI_oil
+20:03:43 │ INFO    │     epoch 10/30 loss=0.8064
+20:03:59 │ INFO    │     epoch 20/30 loss=0.5098
+20:04:14 │ INFO    │     epoch 30/30 loss=0.4674
+20:04:14 │ INFO    │     LSTM_PyTorch: RMSE=43.1596  MAE=38.7007  MAPE=56.57%  R²=-22.8573
+20:04:14 │ INFO    │ 
+════════════════════════════════════════════════════════════
+20:04:14 │ INFO    │   BASELINE МОДЕЛИ: Natural Gas (Henry Hub) (NatGas)  [freq=D]
+20:04:14 │ INFO    │ ════════════════════════════════════════════════════════════
+20:04:17 │ INFO    │ 
+  ▸ horizon = 1
+20:04:17 │ INFO    │   [ARIMA] NatGas
+20:04:21 │ WARNING │     auto_arima error: 0
+20:14:45 │ INFO    │     ARIMA(2, 1, 2): RMSE=0.2012  MAE=0.1107  MAPE=3.66%  R²=0.9288
+20:14:45 │ INFO    │   [Prophet] NatGas
+20:14:45 │ INFO    │ Chain [1] start processing
+20:14:48 │ INFO    │ Chain [1] done processing
+20:14:48 │ INFO    │     Prophet: RMSE=14.9624  MAE=12.3469  MAPE=439.93%  R²=-392.8483
+20:14:48 │ INFO    │   [RandomForest] NatGas
+20:14:49 │ INFO    │     RandomForest: RMSE=0.2772  MAE=0.1530  MAPE=4.99%  R²=0.8651
+20:14:49 │ INFO    │   [LSTM] NatGas
+20:15:04 │ INFO    │     epoch 10/30 loss=0.1199
+20:15:20 │ INFO    │     epoch 20/30 loss=0.0763
+20:15:36 │ INFO    │     epoch 30/30 loss=0.0759
+20:15:36 │ INFO    │     LSTM_PyTorch: RMSE=0.3376  MAE=0.2533  MAPE=8.84%  R²=0.7995
+20:15:36 │ INFO    │ 
+  ▸ horizon = 5
+20:15:36 │ INFO    │   [ARIMA] NatGas
+20:15:39 │ WARNING │     auto_arima error: 4
+20:26:01 │ INFO    │     ARIMA(2, 1, 2): RMSE=0.2012  MAE=0.1107  MAPE=3.66%  R²=0.9288
+20:26:01 │ INFO    │   [Prophet] NatGas
+20:26:02 │ INFO    │ Chain [1] start processing
+20:26:05 │ INFO    │ Chain [1] done processing
+20:26:05 │ INFO    │     Prophet: RMSE=14.9624  MAE=12.3469  MAPE=439.93%  R²=-392.8483
+20:26:05 │ INFO    │   [RandomForest] NatGas
+20:26:06 │ INFO    │     RandomForest: RMSE=0.4508  MAE=0.2846  MAPE=9.48%  R²=0.6430
+20:26:06 │ INFO    │   [LSTM] NatGas
+20:26:21 │ INFO    │     epoch 10/30 loss=0.3647
+20:26:36 │ INFO    │     epoch 20/30 loss=0.2981
+20:26:52 │ INFO    │     epoch 30/30 loss=0.2787
+20:26:52 │ INFO    │     LSTM_PyTorch: RMSE=0.6999  MAE=0.5778  MAPE=20.55%  R²=0.1354
+20:26:52 │ INFO    │ 
+  ▸ horizon = 21
+20:26:52 │ INFO    │   [ARIMA] NatGas
+20:26:55 │ WARNING │     auto_arima error: 20
+20:37:15 │ INFO    │     ARIMA(2, 1, 2): RMSE=0.2012  MAE=0.1107  MAPE=3.66%  R²=0.9288
+20:37:15 │ INFO    │   [Prophet] NatGas
+20:37:16 │ INFO    │ Chain [1] start processing
+20:37:19 │ INFO    │ Chain [1] done processing
+20:37:19 │ INFO    │     Prophet: RMSE=14.9624  MAE=12.3469  MAPE=439.93%  R²=-392.8483
+20:37:19 │ INFO    │   [RandomForest] NatGas
+20:37:20 │ INFO    │     RandomForest: RMSE=0.6670  MAE=0.4773  MAPE=16.63%  R²=0.2223
+20:37:20 │ INFO    │   [LSTM] NatGas
+20:37:35 │ INFO    │     epoch 10/30 loss=0.7151
+20:37:50 │ INFO    │     epoch 20/30 loss=0.6381
+20:38:06 │ INFO    │     epoch 30/30 loss=0.6118
+20:38:06 │ INFO    │     LSTM_PyTorch: RMSE=0.8196  MAE=0.6474  MAPE=24.27%  R²=-0.1729
+20:38:06 │ INFO    │ 
+════════════════════════════════════════════════════════════
+20:38:06 │ INFO    │   BASELINE МОДЕЛИ: Gold (Gold)  [freq=D]
+20:38:06 │ INFO    │ ════════════════════════════════════════════════════════════
+20:38:09 │ INFO    │ 
+  ▸ horizon = 1
+20:38:09 │ INFO    │   [ARIMA] Gold
+20:38:10 │ WARNING │     auto_arima error: 0
+20:53:02 │ INFO    │     ARIMA(2, 0, 2): RMSE=68.1306  MAE=39.8273  MAPE=9826312310.75%  R²=-1.0895
+20:53:02 │ INFO    │   [Prophet] Gold
+20:53:02 │ INFO    │ Chain [1] start processing
+20:53:05 │ INFO    │ Chain [1] done processing
+20:53:05 │ INFO    │     Prophet: RMSE=3200.3831  MAE=2127.7819  MAPE=78.33%  R²=-11.4091
+20:53:05 │ INFO    │   [RandomForest] Gold
+20:53:06 │ INFO    │     RandomForest: RMSE=47.7921  MAE=27.3824  MAPE=2143811742.10%  R²=-0.0257
+20:53:06 │ INFO    │   [LSTM] Gold
+20:53:21 │ INFO    │     epoch 10/30 loss=0.0899
+20:53:37 │ INFO    │     epoch 20/30 loss=0.0852
+20:53:53 │ INFO    │     epoch 30/30 loss=0.0522
+20:53:53 │ INFO    │     LSTM_PyTorch: RMSE=857.7000  MAE=661.1764  MAPE=20.65%  R²=0.1087
+20:53:53 │ INFO    │ 
+  ▸ horizon = 5
+20:53:53 │ INFO    │   [ARIMA] Gold
+20:53:55 │ WARNING │     auto_arima error: 4
+21:08:46 │ INFO    │     ARIMA(2, 0, 2): RMSE=68.1306  MAE=39.8273  MAPE=9826312310.75%  R²=-1.0895
+21:08:46 │ INFO    │   [Prophet] Gold
+21:08:46 │ INFO    │ Chain [1] start processing
+21:08:51 │ INFO    │ Chain [1] done processing
+21:08:51 │ INFO    │     Prophet: RMSE=3200.3831  MAE=2127.7819  MAPE=78.33%  R²=-11.4091
+21:08:51 │ INFO    │   [RandomForest] Gold
+21:08:53 │ INFO    │     RandomForest: RMSE=47.6674  MAE=27.1563  MAPE=1571289294.65%  R²=-0.0190
+21:08:54 │ INFO    │   [LSTM] Gold
+21:09:38 │ INFO    │     epoch 10/30 loss=0.0919
+21:10:12 │ INFO    │     epoch 20/30 loss=0.0727
+21:10:35 │ INFO    │     epoch 30/30 loss=0.0278
+21:10:35 │ INFO    │     LSTM_PyTorch: RMSE=1209.0309  MAE=897.8235  MAPE=27.15%  R²=-0.7713
+21:10:35 │ INFO    │ 
+  ▸ horizon = 21
+21:10:35 │ INFO    │   [ARIMA] Gold
+21:10:37 │ WARNING │     auto_arima error: 20
+21:35:04 │ INFO    │     ARIMA(2, 0, 2): RMSE=68.1306  MAE=39.8273  MAPE=9826312310.75%  R²=-1.0895
+21:35:04 │ INFO    │   [Prophet] Gold
+21:35:04 │ INFO    │ Chain [1] start processing
+21:35:09 │ INFO    │ Chain [1] done processing
+21:35:09 │ INFO    │     Prophet: RMSE=3200.3831  MAE=2127.7819  MAPE=78.33%  R²=-11.4091
+21:35:09 │ INFO    │   [RandomForest] Gold
+21:35:12 │ INFO    │     RandomForest: RMSE=47.8242  MAE=27.2184  MAPE=933753302.64%  R²=-0.0221
+21:35:12 │ INFO    │   [LSTM] Gold
+21:35:54 │ INFO    │     epoch 10/30 loss=0.1782
+21:36:33 │ INFO    │     epoch 20/30 loss=0.0674
+21:37:20 │ INFO    │     epoch 30/30 loss=0.0510
+21:37:20 │ INFO    │     LSTM_PyTorch: RMSE=1187.8104  MAE=923.3422  MAPE=28.62%  R²=-0.7068
+21:37:20 │ INFO    │ 
+════════════════════════════════════════════════════════════
+21:37:20 │ INFO    │   BASELINE МОДЕЛИ: EUR/USD (EURUSD)  [freq=D]
+21:37:20 │ INFO    │ ════════════════════════════════════════════════════════════
+21:37:26 │ INFO    │ 
+  ▸ horizon = 1
+21:37:26 │ INFO    │   [ARIMA] EURUSD
+21:39:33 │ INFO    │     ARIMA_auto: RMSE=0.0049  MAE=0.0037  MAPE=99.40%  R²=-0.0003
+21:39:33 │ INFO    │   [Prophet] EURUSD
+21:39:33 │ INFO    │ Chain [1] start processing
+21:39:37 │ INFO    │ Chain [1] done processing
+21:39:38 │ INFO    │     Prophet: RMSE=1.4182  MAE=0.8156  MAPE=73.92%  R²=-1127.7928
+21:39:38 │ INFO    │   [RandomForest] EURUSD
+21:39:40 │ INFO    │     RandomForest: RMSE=0.0034  MAE=0.0023  MAPE=738527.02%  R²=0.5269
+21:39:40 │ INFO    │   [LSTM] EURUSD
+21:40:31 │ INFO    │     epoch 10/30 loss=0.4170
+21:41:23 │ INFO    │     epoch 20/30 loss=0.2064
+21:42:01 │ INFO    │     epoch 30/30 loss=0.1653
+21:42:01 │ INFO    │     LSTM_PyTorch: RMSE=0.0151  MAE=0.0134  MAPE=1.21%  R²=0.8720
+21:42:01 │ INFO    │ 
+  ▸ horizon = 5
+21:42:01 │ INFO    │   [ARIMA] EURUSD
+21:44:09 │ INFO    │     ARIMA_auto: RMSE=0.0049  MAE=0.0037  MAPE=99.40%  R²=-0.0003
+21:44:09 │ INFO    │   [Prophet] EURUSD
+21:44:09 │ INFO    │ Chain [1] start processing
+21:44:14 │ INFO    │ Chain [1] done processing
+21:44:14 │ INFO    │     Prophet: RMSE=1.4182  MAE=0.8156  MAPE=73.92%  R²=-1127.7928
+21:44:14 │ INFO    │   [RandomForest] EURUSD
+21:44:16 │ INFO    │     RandomForest: RMSE=0.0049  MAE=0.0037  MAPE=214612.75%  R²=0.0024
+21:44:16 │ INFO    │   [LSTM] EURUSD
+21:44:51 │ INFO    │     epoch 10/30 loss=0.5632
+21:45:41 │ INFO    │     epoch 20/30 loss=0.3217
+21:46:29 │ INFO    │     epoch 30/30 loss=0.2490
+21:46:29 │ INFO    │     LSTM_PyTorch: RMSE=0.0247  MAE=0.0216  MAPE=1.94%  R²=0.6573
+21:46:29 │ INFO    │ 
+  ▸ horizon = 21
+21:46:29 │ INFO    │   [ARIMA] EURUSD
+21:48:37 │ INFO    │     ARIMA_auto: RMSE=0.0049  MAE=0.0037  MAPE=99.40%  R²=-0.0003
+21:48:37 │ INFO    │   [Prophet] EURUSD
+21:48:37 │ INFO    │ Chain [1] start processing
+21:48:42 │ INFO    │ Chain [1] done processing
+21:48:42 │ INFO    │     Prophet: RMSE=1.4182  MAE=0.8156  MAPE=73.92%  R²=-1127.7928
+21:48:42 │ INFO    │   [RandomForest] EURUSD
+21:48:45 │ INFO    │     RandomForest: RMSE=0.0049  MAE=0.0037  MAPE=84321.91%  R²=-0.0016
+21:48:45 │ INFO    │   [LSTM] EURUSD
+21:49:25 │ INFO    │     epoch 10/30 loss=0.9645
+21:50:11 │ INFO    │     epoch 20/30 loss=0.6537
+21:50:55 │ INFO    │     epoch 30/30 loss=0.5712
+21:50:55 │ INFO    │     LSTM_PyTorch: RMSE=0.0332  MAE=0.0272  MAPE=2.42%  R²=0.3892
+21:50:55 │ INFO    │ 
+════════════════════════════════════════════════════════════
+21:50:55 │ INFO    │   BASELINE МОДЕЛИ: GBP/USD (GBPUSD)  [freq=D]
+21:50:55 │ INFO    │ ════════════════════════════════════════════════════════════
+21:51:01 │ INFO    │ 
+  ▸ horizon = 1
+21:51:01 │ INFO    │   [ARIMA] GBPUSD
+21:53:18 │ INFO    │     ARIMA_auto: RMSE=0.0059  MAE=0.0045  MAPE=99.64%  R²=-0.0004
+21:53:18 │ INFO    │   [Prophet] GBPUSD
+21:53:18 │ INFO    │ Chain [1] start processing
+21:53:22 │ INFO    │ Chain [1] done processing
+21:53:22 │ INFO    │     Prophet: RMSE=1.8461  MAE=1.0309  MAPE=80.20%  R²=-1674.3067
+21:53:22 │ INFO    │   [RandomForest] GBPUSD
+21:53:24 │ INFO    │     RandomForest: RMSE=0.0045  MAE=0.0034  MAPE=663176.95%  R²=0.4154
+21:53:25 │ INFO    │   [LSTM] GBPUSD
+21:54:07 │ INFO    │     epoch 10/30 loss=1.3418
+21:54:29 │ INFO    │     epoch 20/30 loss=0.3146
+21:55:10 │ INFO    │     epoch 30/30 loss=0.2065
+21:55:10 │ INFO    │     LSTM_PyTorch: RMSE=0.0458  MAE=0.0428  MAPE=3.30%  R²=-0.0308
+21:55:10 │ INFO    │ 
+  ▸ horizon = 5
+21:55:10 │ INFO    │   [ARIMA] GBPUSD
+21:57:18 │ INFO    │     ARIMA_auto: RMSE=0.0059  MAE=0.0045  MAPE=99.64%  R²=-0.0004
+21:57:18 │ INFO    │   [Prophet] GBPUSD
+21:57:18 │ INFO    │ Chain [1] start processing
+21:57:22 │ INFO    │ Chain [1] done processing
+21:57:22 │ INFO    │     Prophet: RMSE=1.8461  MAE=1.0309  MAPE=80.20%  R²=-1674.3067
+21:57:22 │ INFO    │   [RandomForest] GBPUSD
+21:57:25 │ INFO    │     RandomForest: RMSE=0.0059  MAE=0.0045  MAPE=54475.81%  R²=-0.0085
+21:57:25 │ INFO    │   [LSTM] GBPUSD
+21:58:15 │ INFO    │     epoch 10/30 loss=0.6432
+21:59:02 │ INFO    │     epoch 20/30 loss=0.4039
+21:59:41 │ INFO    │     epoch 30/30 loss=0.2633
+21:59:41 │ INFO    │     LSTM_PyTorch: RMSE=0.0445  MAE=0.0394  MAPE=3.02%  R²=0.0154
+21:59:41 │ INFO    │ 
+  ▸ horizon = 21
+21:59:41 │ INFO    │   [ARIMA] GBPUSD
+22:02:04 │ INFO    │     ARIMA_auto: RMSE=0.0059  MAE=0.0045  MAPE=99.64%  R²=-0.0004
+22:02:04 │ INFO    │   [Prophet] GBPUSD
+22:02:05 │ INFO    │ Chain [1] start processing
+22:02:09 │ INFO    │ Chain [1] done processing
+22:02:09 │ INFO    │     Prophet: RMSE=1.8461  MAE=1.0309  MAPE=80.20%  R²=-1674.3067
+22:02:09 │ INFO    │   [RandomForest] GBPUSD
+22:02:11 │ INFO    │     RandomForest: RMSE=0.0059  MAE=0.0045  MAPE=113489.43%  R²=-0.0155
+22:02:11 │ INFO    │   [LSTM] GBPUSD
+22:02:48 │ INFO    │     epoch 10/30 loss=2.4181
+22:03:24 │ INFO    │     epoch 20/30 loss=0.8648
+22:04:12 │ INFO    │     epoch 30/30 loss=0.6416
+22:04:12 │ INFO    │     LSTM_PyTorch: RMSE=0.0307  MAE=0.0248  MAPE=1.90%  R²=0.5224
+22:04:12 │ INFO    │ 
+════════════════════════════════════════════════════════════
+22:04:12 │ INFO    │   BASELINE МОДЕЛИ: USD/JPY (USDJPY)  [freq=D]
+22:04:12 │ INFO    │ ════════════════════════════════════════════════════════════
+22:04:19 │ INFO    │ 
+  ▸ horizon = 1
+22:04:19 │ INFO    │   [ARIMA] USDJPY
+22:05:18 │ INFO    │     ARIMA_auto: RMSE=0.9046  MAE=0.6749  MAPE=99.40%  R²=-0.0017
+22:05:18 │ INFO    │   [Prophet] USDJPY
+22:05:18 │ ERROR   │     Prophet error: Found NaN in column 'Nikkei'
+22:05:18 │ INFO    │   [RandomForest] USDJPY
+22:05:20 │ INFO    │     RandomForest: RMSE=0.8305  MAE=0.6161  MAPE=161596012.13%  R²=0.1578
+22:05:20 │ INFO    │   [LSTM] USDJPY
+22:06:14 │ INFO    │     epoch 10/30 loss=0.3922
+22:07:10 │ INFO    │     epoch 20/30 loss=0.3101
+22:08:02 │ INFO    │     epoch 30/30 loss=0.2508
+22:08:02 │ INFO    │     LSTM_PyTorch: RMSE=30.2119  MAE=27.5514  MAPE=18.31%  R²=-15.1383
+22:08:02 │ INFO    │ 
+  ▸ horizon = 5
+22:08:02 │ INFO    │   [ARIMA] USDJPY
+22:08:58 │ INFO    │     ARIMA_auto: RMSE=0.9046  MAE=0.6749  MAPE=99.40%  R²=-0.0017
+22:08:58 │ INFO    │   [Prophet] USDJPY
+22:08:58 │ ERROR   │     Prophet error: Found NaN in column 'Nikkei'
+22:08:58 │ INFO    │   [RandomForest] USDJPY
+22:09:00 │ INFO    │     RandomForest: RMSE=0.9151  MAE=0.6872  MAPE=73017382.24%  R²=-0.0214
+22:09:01 │ INFO    │   [LSTM] USDJPY
+22:09:48 │ INFO    │     epoch 10/30 loss=0.4192
+22:10:28 │ INFO    │     epoch 20/30 loss=0.4101
+22:11:06 │ INFO    │     epoch 30/30 loss=0.4964
+22:11:07 │ INFO    │     LSTM_PyTorch: RMSE=31.3824  MAE=27.8331  MAPE=18.46%  R²=-16.7442
+22:11:07 │ INFO    │ 
+  ▸ horizon = 21
+22:11:07 │ INFO    │   [ARIMA] USDJPY
+22:12:08 │ INFO    │     ARIMA_auto: RMSE=0.9046  MAE=0.6749  MAPE=99.40%  R²=-0.0017
+22:12:08 │ INFO    │   [Prophet] USDJPY
+22:12:08 │ ERROR   │     Prophet error: Found NaN in column 'Nikkei'
+22:12:08 │ INFO    │   [RandomForest] USDJPY
+22:12:10 │ INFO    │     RandomForest: RMSE=0.9144  MAE=0.6816  MAPE=98901579.74%  R²=-0.0200
+22:12:11 │ INFO    │   [LSTM] USDJPY
+22:12:47 │ INFO    │     epoch 10/30 loss=0.5406
+22:13:23 │ INFO    │     epoch 20/30 loss=0.5032
+22:14:02 │ INFO    │     epoch 30/30 loss=0.4612
+22:14:02 │ INFO    │     LSTM_PyTorch: RMSE=23.2186  MAE=19.9606  MAPE=13.25%  R²=-9.7473
+22:14:02 │ INFO    │ 
+════════════════════════════════════════════════════════════
+22:14:02 │ INFO    │   BASELINE МОДЕЛИ: US CPI Inflation (CPI)  [freq=ME]
+22:14:02 │ INFO    │ ════════════════════════════════════════════════════════════
+22:14:02 │ INFO    │ 
+  ▸ horizon = 1
+22:14:02 │ INFO    │   [ARIMA] CPI
+22:14:05 │ INFO    │     ARIMA_auto: RMSE=0.4044  MAE=0.3371  MAPE=4955784882.75%  R²=0.0102
+22:14:05 │ INFO    │   [Prophet] CPI
+22:14:05 │ ERROR   │     Prophet error: Found NaN in column 'PPI_MoM'
+22:14:05 │ INFO    │   [RandomForest] CPI
+22:14:06 │ INFO    │     RandomForest: RMSE=0.4829  MAE=0.4083  MAPE=4239583967.91%  R²=-0.3691
+22:14:06 │ INFO    │   [LSTM] CPI
+22:14:07 │ INFO    │     epoch 10/50 loss=0.0327
+22:14:08 │ INFO    │     epoch 20/50 loss=0.0063
+22:14:08 │ INFO    │     epoch 30/50 loss=0.0050
+22:14:09 │ INFO    │     epoch 40/50 loss=0.0035
+22:14:10 │ INFO    │     epoch 50/50 loss=0.0032
+22:14:10 │ INFO    │     LSTM_PyTorch: RMSE=8.6681  MAE=8.3591  MAPE=2.63%  R²=-0.3207
+22:14:10 │ INFO    │ 
+  ▸ horizon = 3
+22:14:10 │ INFO    │   [ARIMA] CPI
+22:14:13 │ INFO    │     ARIMA_auto: RMSE=0.4329  MAE=0.3637  MAPE=5658557144.78%  R²=-0.1339
+22:14:13 │ INFO    │   [Prophet] CPI
+22:14:13 │ ERROR   │     Prophet error: Found NaN in column 'PPI_MoM'
+22:14:13 │ INFO    │   [RandomForest] CPI
+22:14:13 │ INFO    │     RandomForest: RMSE=0.4684  MAE=0.3856  MAPE=3334144283.29%  R²=-0.2510
+22:14:13 │ INFO    │   [LSTM] CPI
+22:14:15 │ INFO    │     epoch 10/50 loss=0.0241
+22:14:16 │ INFO    │     epoch 20/50 loss=0.0080
+22:14:17 │ INFO    │     epoch 30/50 loss=0.0057
+22:14:18 │ INFO    │     epoch 40/50 loss=0.0047
+22:14:19 │ INFO    │     epoch 50/50 loss=0.0036
+22:14:19 │ INFO    │     LSTM_PyTorch: RMSE=9.6905  MAE=9.5306  MAPE=3.00%  R²=-0.8754
+22:14:19 │ INFO    │ 
+  ▸ horizon = 6
+22:14:19 │ INFO    │   [ARIMA] CPI
+22:14:22 │ INFO    │     ARIMA_auto: RMSE=0.4329  MAE=0.3637  MAPE=5658557144.78%  R²=-0.1339
+22:14:22 │ INFO    │   [Prophet] CPI
+22:14:22 │ ERROR   │     Prophet error: Found NaN in column 'PPI_MoM'
+22:14:22 │ INFO    │   [RandomForest] CPI
+22:14:22 │ INFO    │     RandomForest: RMSE=0.4013  MAE=0.3267  MAPE=4791299148.62%  R²=0.0815
+22:14:22 │ INFO    │   [LSTM] CPI
+22:14:24 │ INFO    │     epoch 10/50 loss=0.0417
+22:14:24 │ INFO    │     epoch 20/50 loss=0.0134
+22:14:25 │ INFO    │     epoch 30/50 loss=0.0051
+22:14:26 │ INFO    │     epoch 40/50 loss=0.0040
+22:14:27 │ INFO    │     epoch 50/50 loss=0.0030
+22:14:27 │ INFO    │     LSTM_PyTorch: RMSE=7.9761  MAE=7.6405  MAPE=2.39%  R²=-0.5771
+22:14:27 │ INFO    │ 
+════════════════════════════════════════════════════════════
+22:14:27 │ INFO    │   BASELINE МОДЕЛИ: Industrial Production (IndProd)  [freq=ME]
+22:14:27 │ INFO    │ ════════════════════════════════════════════════════════════
+22:14:28 │ INFO    │ 
+  ▸ horizon = 1
+22:14:28 │ INFO    │   [ARIMA] IndProd
+22:14:30 │ INFO    │     ARIMA_auto: RMSE=0.6273  MAE=0.5115  MAPE=0.51%  R²=0.4538
+22:14:30 │ INFO    │   [Prophet] IndProd
+22:14:30 │ ERROR   │     Prophet error: Found NaN in column 'Unemployment_lag1'
+22:14:30 │ INFO    │   [RandomForest] IndProd
+22:14:31 │ INFO    │     RandomForest: RMSE=0.7638  MAE=0.6313  MAPE=0.62%  R²=0.2303
+22:14:31 │ INFO    │   [LSTM] IndProd
+22:14:32 │ INFO    │     epoch 10/50 loss=0.0978
+22:14:33 │ INFO    │     epoch 20/50 loss=0.0760
+22:14:34 │ INFO    │     epoch 30/50 loss=0.0613
+22:14:35 │ INFO    │     epoch 40/50 loss=0.0589
+22:14:36 │ INFO    │     epoch 50/50 loss=0.0546
+22:14:36 │ INFO    │     LSTM_PyTorch: RMSE=0.8978  MAE=0.7060  MAPE=0.70%  R²=-0.1189
+22:14:36 │ INFO    │ 
+  ▸ horizon = 3
+22:14:36 │ INFO    │   [ARIMA] IndProd
+22:14:38 │ INFO    │     ARIMA_auto: RMSE=0.7898  MAE=0.6697  MAPE=0.66%  R²=0.1340
+22:14:38 │ INFO    │   [Prophet] IndProd
+22:14:38 │ ERROR   │     Prophet error: Found NaN in column 'Unemployment_lag1'
+22:14:38 │ INFO    │   [RandomForest] IndProd
+22:14:39 │ INFO    │     RandomForest: RMSE=1.1950  MAE=0.9443  MAPE=0.93%  R²=-0.8741
+22:14:39 │ INFO    │   [LSTM] IndProd
+22:14:40 │ INFO    │     epoch 10/50 loss=0.0890
+22:14:41 │ INFO    │     epoch 20/50 loss=0.0825
+22:14:43 │ INFO    │     epoch 30/50 loss=0.0744
+22:14:44 │ INFO    │     epoch 40/50 loss=0.0756
+22:14:45 │ INFO    │     epoch 50/50 loss=0.0709
+22:14:45 │ INFO    │     LSTM_PyTorch: RMSE=1.0094  MAE=0.8068  MAPE=0.80%  R²=-0.3443
+22:14:45 │ INFO    │ 
+  ▸ horizon = 6
+22:14:45 │ INFO    │   [ARIMA] IndProd
+22:14:47 │ INFO    │     ARIMA_auto: RMSE=1.0887  MAE=0.9462  MAPE=0.93%  R²=-0.6455
+22:14:47 │ INFO    │   [Prophet] IndProd
+22:14:47 │ ERROR   │     Prophet error: Found NaN in column 'Unemployment_lag1'
+22:14:47 │ INFO    │   [RandomForest] IndProd
+22:14:48 │ INFO    │     RandomForest: RMSE=1.0116  MAE=0.7478  MAPE=0.74%  R²=-0.3431
+22:14:48 │ INFO    │   [LSTM] IndProd
+22:14:49 │ INFO    │     epoch 10/50 loss=0.0894
+22:14:50 │ INFO    │     epoch 20/50 loss=0.0802
+22:14:51 │ INFO    │     epoch 30/50 loss=0.0814
+22:14:52 │ INFO    │     epoch 40/50 loss=0.0797
+22:14:53 │ INFO    │     epoch 50/50 loss=0.0795
+22:14:53 │ INFO    │     LSTM_PyTorch: RMSE=0.8739  MAE=0.7166  MAPE=0.71%  R²=0.0564
+22:14:53 │ INFO    │ 
+════════════════════════════════════════════════════════════
+22:14:53 │ INFO    │   BASELINE МОДЕЛИ: Michigan Consumer Sentiment (UMCSENT)  [freq=ME]
+22:14:53 │ INFO    │ ════════════════════════════════════════════════════════════
+22:14:53 │ INFO    │ 
+  ▸ horizon = 1
+22:14:53 │ INFO    │   [ARIMA] UMCSENT
+22:14:54 │ INFO    │     ARIMA_auto: RMSE=4.1822  MAE=3.2324  MAPE=91.89%  R²=-0.0012
+22:14:54 │ INFO    │   [Prophet] UMCSENT
+22:14:54 │ ERROR   │     Prophet error: Found NaN in column 'Unemployment_MoM'
+22:14:54 │ INFO    │   [RandomForest] UMCSENT
+22:14:55 │ INFO    │     RandomForest: RMSE=4.1126  MAE=3.0621  MAPE=2020877514.94%  R²=0.0483
+22:14:55 │ INFO    │   [LSTM] UMCSENT
+22:14:56 │ INFO    │     epoch 10/50 loss=0.1583
+22:14:57 │ INFO    │     epoch 20/50 loss=0.0636
+22:14:57 │ INFO    │     epoch 30/50 loss=0.0558
+22:14:58 │ INFO    │     epoch 40/50 loss=0.0487
+22:14:59 │ INFO    │     epoch 50/50 loss=0.0493
+22:14:59 │ INFO    │     LSTM_PyTorch: RMSE=6.8567  MAE=5.5085  MAPE=8.56%  R²=0.2778
+22:14:59 │ INFO    │ 
+  ▸ horizon = 3
+22:14:59 │ INFO    │   [ARIMA] UMCSENT
+22:15:00 │ INFO    │     ARIMA_auto: RMSE=4.1822  MAE=3.2324  MAPE=91.89%  R²=-0.0012
+22:15:00 │ INFO    │   [Prophet] UMCSENT
+22:15:00 │ ERROR   │     Prophet error: Found NaN in column 'Unemployment_MoM'
+22:15:00 │ INFO    │   [RandomForest] UMCSENT
+22:15:00 │ INFO    │     RandomForest: RMSE=3.9889  MAE=2.9709  MAPE=3587495589.56%  R²=0.0884
+22:15:00 │ INFO    │   [LSTM] UMCSENT
+22:15:01 │ INFO    │     epoch 10/50 loss=0.1084
+22:15:02 │ INFO    │     epoch 20/50 loss=0.0701
+22:15:03 │ INFO    │     epoch 30/50 loss=0.0670
+22:15:04 │ INFO    │     epoch 40/50 loss=0.0650
+22:15:05 │ INFO    │     epoch 50/50 loss=0.0635
+22:15:05 │ INFO    │     LSTM_PyTorch: RMSE=7.5654  MAE=6.3108  MAPE=9.73%  R²=0.1581
+22:15:05 │ INFO    │ 
+  ▸ horizon = 6
+22:15:05 │ INFO    │   [ARIMA] UMCSENT
+22:15:06 │ INFO    │     ARIMA_auto: RMSE=4.1822  MAE=3.2324  MAPE=91.89%  R²=-0.0012
+22:15:06 │ INFO    │   [Prophet] UMCSENT
+22:15:06 │ ERROR   │     Prophet error: Found NaN in column 'Unemployment_MoM'
+22:15:06 │ INFO    │   [RandomForest] UMCSENT
+22:15:07 │ INFO    │     RandomForest: RMSE=4.1149  MAE=3.1235  MAPE=3703759889.54%  R²=0.0299
+22:15:07 │ INFO    │   [LSTM] UMCSENT
+22:15:07 │ INFO    │     epoch 10/50 loss=0.1128
+22:15:08 │ INFO    │     epoch 20/50 loss=0.0723
+22:15:09 │ INFO    │     epoch 30/50 loss=0.0671
+22:15:10 │ INFO    │     epoch 40/50 loss=0.0674
+22:15:11 │ INFO    │     epoch 50/50 loss=0.0660
+22:15:11 │ INFO    │     LSTM_PyTorch: RMSE=7.9918  MAE=6.9102  MAPE=10.88%  R²=0.1116
+22:15:11 │ INFO    │ 
+════════════════════════════════════════════════════════════
+22:15:11 │ INFO    │   BASELINE МОДЕЛИ: Bitcoin (BTC)  [freq=D]
+22:15:11 │ INFO    │ ════════════════════════════════════════════════════════════
+22:15:18 │ INFO    │ 
+  ▸ horizon = 1
+22:15:18 │ INFO    │   [ARIMA] BTC
+22:16:06 │ INFO    │     ARIMA_auto: RMSE=2135.5854  MAE=1535.1336  MAPE=122.90%  R²=-0.0030
+22:16:06 │ INFO    │   [Prophet] BTC
+22:16:06 │ ERROR   │     Prophet error: Found NaN in column 'BNB'
+22:16:06 │ INFO    │   [RandomForest] BTC
+22:16:08 │ INFO    │     RandomForest: RMSE=2152.6709  MAE=1547.8303  MAPE=136.81%  R²=-0.0149
+22:16:08 │ INFO    │   [LSTM] BTC
+22:16:20 │ INFO    │     epoch 10/30 loss=0.4012
+22:16:32 │ INFO    │     epoch 20/30 loss=0.1284
+22:16:43 │ INFO    │     epoch 30/30 loss=0.0758
+22:16:43 │ INFO    │     LSTM_PyTorch: RMSE=10963.6105  MAE=8751.6763  MAPE=10.26%  R²=0.5176
+22:16:43 │ INFO    │ 
+  ▸ horizon = 5
+22:16:43 │ INFO    │   [ARIMA] BTC
+22:17:04 │ INFO    │     ARIMA_auto: RMSE=2136.7309  MAE=1535.0251  MAPE=114.40%  R²=-0.0040
+22:17:04 │ INFO    │   [Prophet] BTC
+22:17:04 │ ERROR   │     Prophet error: Found NaN in column 'BNB'
+22:17:04 │ INFO    │   [RandomForest] BTC
+22:17:04 │ INFO    │     RandomForest: RMSE=2149.6819  MAE=1548.3560  MAPE=174.30%  R²=-0.0121
+22:17:05 │ INFO    │   [LSTM] BTC
+22:17:14 │ INFO    │     epoch 10/30 loss=0.4129
+22:17:23 │ INFO    │     epoch 20/30 loss=0.1701
+22:17:34 │ INFO    │     epoch 30/30 loss=0.0884
+22:17:34 │ INFO    │     LSTM_PyTorch: RMSE=11922.7802  MAE=9241.6062  MAPE=10.99%  R²=0.4333
+22:17:34 │ INFO    │ 
+  ▸ horizon = 21
+22:17:34 │ INFO    │   [ARIMA] BTC
+22:17:57 │ INFO    │     ARIMA_auto: RMSE=2136.7309  MAE=1535.0251  MAPE=114.40%  R²=-0.0040
+22:17:57 │ INFO    │   [Prophet] BTC
+22:17:57 │ ERROR   │     Prophet error: Found NaN in column 'BNB'
+22:17:57 │ INFO    │   [RandomForest] BTC
+22:17:58 │ INFO    │     RandomForest: RMSE=2145.1161  MAE=1550.4182  MAPE=150.18%  R²=-0.0008
+22:17:58 │ INFO    │   [LSTM] BTC
+22:18:09 │ INFO    │     epoch 10/30 loss=0.7482
+22:18:21 │ INFO    │     epoch 20/30 loss=0.3761
+22:18:34 │ INFO    │     epoch 30/30 loss=0.2602
+22:18:34 │ INFO    │     LSTM_PyTorch: RMSE=24279.0671  MAE=19744.7607  MAPE=23.09%  R²=-1.2701
+22:18:34 │ INFO    │ 
+════════════════════════════════════════════════════════════
+22:18:34 │ INFO    │   BASELINE МОДЕЛИ: Ethereum (ETH)  [freq=D]
+22:18:34 │ INFO    │ ════════════════════════════════════════════════════════════
+22:18:37 │ INFO    │ 
+  ▸ horizon = 1
+22:18:37 │ INFO    │   [ARIMA] ETH
+22:18:50 │ INFO    │     ARIMA_auto: RMSE=114.6055  MAE=78.3595  MAPE=538.52%  R²=-0.0050
+22:18:50 │ INFO    │   [Prophet] ETH
+22:18:50 │ ERROR   │     Prophet error: Found NaN in column 'SOL'
+22:18:50 │ INFO    │   [RandomForest] ETH
+22:18:51 │ INFO    │     RandomForest: RMSE=115.9261  MAE=79.0275  MAPE=690.50%  R²=-0.0254
+22:18:51 │ INFO    │   [LSTM] ETH
+22:19:03 │ INFO    │     epoch 10/30 loss=0.7626
+22:19:15 │ INFO    │     epoch 20/30 loss=0.3191
+22:19:27 │ INFO    │     epoch 30/30 loss=0.1230
+22:19:27 │ INFO    │     LSTM_PyTorch: RMSE=510.4500  MAE=423.3426  MAPE=17.06%  R²=0.6516
+22:19:27 │ INFO    │ 
+  ▸ horizon = 5
+22:19:27 │ INFO    │   [ARIMA] ETH
+22:19:40 │ INFO    │     ARIMA_auto: RMSE=114.3522  MAE=78.2897  MAPE=100.00%  R²=-0.0006
+22:19:40 │ INFO    │   [Prophet] ETH
+22:19:40 │ ERROR   │     Prophet error: Found NaN in column 'SOL'
+22:19:40 │ INFO    │   [RandomForest] ETH
+22:19:41 │ INFO    │     RandomForest: RMSE=115.9217  MAE=79.2035  MAPE=1033.33%  R²=-0.0253
+22:19:41 │ INFO    │   [LSTM] ETH
+22:19:53 │ INFO    │     epoch 10/30 loss=0.7752
+22:20:02 │ INFO    │     epoch 20/30 loss=0.5367
+22:20:11 │ INFO    │     epoch 30/30 loss=0.2658
+22:20:11 │ INFO    │     LSTM_PyTorch: RMSE=688.5354  MAE=574.9724  MAPE=24.73%  R²=0.3707
+22:20:11 │ INFO    │ 
+  ▸ horizon = 21
+22:20:11 │ INFO    │   [ARIMA] ETH
+22:20:23 │ INFO    │     ARIMA_auto: RMSE=114.3522  MAE=78.2897  MAPE=100.00%  R²=-0.0006
+22:20:23 │ INFO    │   [Prophet] ETH
+22:20:24 │ ERROR   │     Prophet error: Found NaN in column 'SOL'
+22:20:24 │ INFO    │   [RandomForest] ETH
+22:20:24 │ INFO    │     RandomForest: RMSE=114.4996  MAE=78.5428  MAPE=3332.85%  R²=0.0056
+22:20:24 │ INFO    │   [LSTM] ETH
+22:20:33 │ INFO    │     epoch 10/30 loss=0.7628
+22:20:44 │ INFO    │     epoch 20/30 loss=0.6715
+22:20:54 │ INFO    │     epoch 30/30 loss=0.5474
+22:20:54 │ INFO    │     LSTM_PyTorch: RMSE=934.6751  MAE=804.6021  MAPE=35.02%  R²=-0.1202
+22:20:54 │ INFO    │ 
+✓ Результаты step4 сохранены: results\step4_baselines.json
+22:20:54 │ INFO    │ 
+═══════════════════════════════════════════════════════
+22:20:54 │ INFO    │   ШАГ 5: Сравнение результатов и отчёт
+22:20:54 │ INFO    │ ═══════════════════════════════════════════════════════
+22:20:54 │ INFO    │ Загружаем результаты step3 и step4...
+22:20:55 │ INFO    │ Строим сводные таблицы...
+22:20:55 │ INFO    │   ✓ CSV-таблицы сохранены
+22:20:55 │ INFO    │ Генерируем графики...
+22:20:56 │ INFO    │   ✓ heatmap_RMSE_h1.png
+22:20:56 │ INFO    │   ✓ causal_vs_baseline_RMSE_h1.png
+22:20:56 │ INFO    │   ✓ heatmap_RMSE_h3.png
+22:20:56 │ INFO    │   ✓ causal_vs_baseline_RMSE_h3.png
+22:20:57 │ INFO    │   ✓ heatmap_RMSE_h5.png
+22:20:57 │ INFO    │   ✓ causal_vs_baseline_RMSE_h5.png
+22:20:57 │ INFO    │   ✓ heatmap_RMSE_h6.png
+22:20:57 │ INFO    │   ✓ causal_vs_baseline_RMSE_h6.png
+22:20:57 │ INFO    │   ✓ heatmap_RMSE_h21.png
+22:20:58 │ INFO    │   ✓ causal_vs_baseline_RMSE_h21.png
+22:20:59 │ INFO    │   ✓ horizon_progression_RMSE.png
+22:20:59 │ INFO    │   ✓ dag_divergence_RMSE.png
+22:20:59 │ INFO    │ 
+✓ Пайплайн завершён за 10321.8 сек (172.0 мин)
+22:20:59 │ INFO    │   Результаты:  results/
+22:20:59 │ INFO    │   Графики:     figures/
