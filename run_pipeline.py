@@ -16,13 +16,14 @@ causal_pipeline/run_pipeline.py
   python run_pipeline.py --assets WTI_oil BTC ETH
 
   # Без PC-алгоритма (только экспертный DAG)
-  python run_pipeline.py --no-pc
+  python run_pipeline.py --no-pcmci              # без PCMCI+, только expert DAG
 
   # Горизонт прогноза
   python run_pipeline.py --horizon 5
 
 Зависимости:
   pip install causallearn econml linearmodels pmdarima prophet
+
               torch scikit-learn statsmodels pandas numpy matplotlib
               xgboost shap
 """
@@ -117,14 +118,14 @@ def step1_info():
     return ALL_DAGS
 
 
-def step2_select(use_pc: bool = True, assets: list = None) -> dict:
+def step2_select(use_pcmci: bool = True, assets: list = None) -> dict:
     """Шаг 2: отбор переменных."""
     log.info("\n" + "═"*55)
     log.info("  ШАГ 2: Отбор контрольных переменных")
     log.info("═"*55)
     from step2_variable_selection import run_variable_selection, ALL_DAGS
 
-    var_sel = run_variable_selection(use_pc=use_pc)
+    var_sel = run_variable_selection(use_pcmci=use_pcmci)
 
     # Фильтрация по активам
     if assets:
@@ -172,7 +173,7 @@ def parse_args():
   python run_pipeline.py                          # полный пайплайн, все 10 активов
   python run_pipeline.py --assets WTI_oil BTC     # только выбранные активы
   python run_pipeline.py --step 5                 # только отчёт (если step3/4 уже готовы)
-  python run_pipeline.py --no-pc                  # без PC-алгоритма (только expert DAG)
+  python run_pipeline.py --no-pcmci               # без PCMCI+, только expert DAG
   python run_pipeline.py --assets CPI UMCSENT IndProd  # только макро-группа C
 
 Адаптивные горизонты прогноза (задаются автоматически по частоте):
@@ -196,7 +197,7 @@ DAG-подходы для контрольных переменных Z:
              "CPI IndProd UMCSENT BTC ETH"
     )
     parser.add_argument(
-        "--no-pc", action="store_true",
+        "--no-pcmci", action="store_true",
         help="Отключить PC-алгоритм (использовать только экспертный DAG)"
     )
     parser.add_argument(
@@ -222,7 +223,7 @@ def main():
     if not args.skip_deps_check:
         check_dependencies()
 
-    use_pc = not getattr(args, "no_pc", False)
+    use_pcmci = not getattr(args, "no_pcmci", False)
 
     sel_path = Path("results/step2_variable_selection.json")
     var_sel  = None
@@ -232,7 +233,7 @@ def main():
         step1_info()
 
     if args.step == 0 or args.step == 2:
-        var_sel = step2_select(use_pc=use_pc, assets=args.assets)
+        var_sel = step2_select(use_pcmci=use_pcmci, assets=args.assets)
     elif sel_path.exists():
         with open(sel_path) as f:
             var_sel = json.load(f)
@@ -240,7 +241,7 @@ def main():
             var_sel = {k: v for k, v in var_sel.items() if k in args.assets}
     else:
         log.warning("step2 не выполнен — запускаем автоматически")
-        var_sel = step2_select(use_pc=use_pc, assets=args.assets)
+        var_sel = step2_select(use_pcmci=use_pcmci, assets=args.assets)
 
     if args.step == 0 or args.step == 3:
         step3_causal(var_sel)

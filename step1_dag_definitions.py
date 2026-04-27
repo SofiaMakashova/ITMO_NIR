@@ -51,19 +51,19 @@ WTI_DAG = AssetDAG(
     file="A_WTI_oil.csv",
     causes=[
         "EIA_crude_stocks",    # запасы нефти США — прямая причина цены
-        "Brent",               # арбитраж WTI–Brent
         "DXY",                 # нефть котируется в USD
         "ISM_PMI",             # промышленный спрос
         "OPEC_proxy",          # предложение (прокси через Brent spread)
     ],
     confounders=[
         "VIX",                 # общий риск-фактор → DXY и WTI
+        "Brent",               # арбитраж WTI–Brent
         "SP500",               # risk-on/off → DXY, WTI, спрос
         "Yield10Y",            # ставки → DXY → WTI
         "IndProd_USA",         # производство → спрос → WTI
     ],
     mediators=[
-        "WTI_Brent_spread",    # медиатор между OPEC и WTI (не контролируем)
+        "WTI_Brent_spread",    # медиатор между Brent и WTI (не контролируем)
     ],
     instruments=[
         "EIA_gas_stocks",      # влияет на энергокомплекс, но не на WTI напрямую
@@ -89,10 +89,10 @@ NATGAS_DAG = AssetDAG(
         "ISM_PMI",             # производственный спрос
     ],
     confounders=[
-        "VIX",
+    #    "VIX",
         "SP500",
         "DXY",
-        "IndProd_USA",
+    #    "IndProd_USA",
     ],
     instruments=[
         "EIA_crude_stocks",    # коррелирует с энергокомплексом, не с газом напрямую
@@ -240,10 +240,15 @@ CPI_DAG = AssetDAG(
     confounders=[
         "FedFunds",            # ставка ФРС → кредит → спрос → CPI
         "Unemployment",        # рынок труда → зарплаты (Phillips curve)
+        "NFP",
         "HousingStarts",       # жильё → CPI компонент
+        "M2",                  # количественная теория денег
+        "DXY",                 # <<< ДОБАВЛЕНО: курс доллара → импортные цены → CPI
+        "Yield10Y",            # <<< ДОБАВЛЕНО: инфляционные ожидания через breakeven
+        "SP500",               # <<< ДОБАВЛЕНО: wealth effect → потребление → CPI
     ],
     mediators=[
-        "PCE_core",            # медиатор PPI → PCE → CPI (не контролируем)
+        #"PCE_core",            # медиатор PPI → PCE → CPI (не контролируем)
     ],
     instruments=[
         "EIA_crude_stocks",    # запасы нефти → нефтяные цены → CPI (не зависит от спроса)

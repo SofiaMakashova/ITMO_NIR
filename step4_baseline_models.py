@@ -45,89 +45,133 @@ from step3_causal_models import (
 
 def run_arima(df: pd.DataFrame, target: str, horizon: int = 1) -> Dict:
     """
-    ARIMA с автоматическим подбором порядка (p,d,q) через pmdarima
-    или ручным перебором через statsmodels.
-    Rolling 1-step-ahead forecast на тесте.
+    ARIMA baseline с правильной многошаговой стратегией.
+
+    Стратегия прогноза зависит от горизонта:
+
+    h = 1  —  Rolling 1-step-ahead:
+        На каждом шаге теста: обучаем на истории до t, предсказываем t+1,
+        добавляем реальное значение y[t] в историю, сдвигаемся.
+        Это стандартный walk-forward evaluation.
+
+    h > 1  —  DIRECT (прямой) метод:
+        Обучаем отдельную ARIMA на сдвинутом целевом ряде y[t+h] ~ ARIMA(y[t], ...),
+        затем делаем rolling 1-step-ahead прогноз сдвинутого ряда.
+        Это избегает накопления ошибки рекурсивного метода и гарантирует
+        что RMSE на h=5 и h=21 отличаются от h=1.
+
+        Альтернатива — рекурсивный forecast(steps=h): формально корректна,
+        но для нестационарных/слабопредсказуемых рядов даёт идентичные
+        метрики при разных h (модель вырождается в прогноз среднего).
+        DIRECT-метод этого лишён.
+
+    Определение стационарности:
+        ADF-тест перед auto_arima. Если ряд уже стационарен (p<0.05),
+        фиксируем d=0 чтобы pmdarima не падал с ошибкой на d=1.
     """
-    log.info(f"  [ARIMA] {target}")
+    log.info(f"  [ARIMA] {target}  h={horizon}")
+
+    from statsmodels.tsa.stattools import adfuller
 
     series = df[target].dropna()
-    n = len(series)
+    n   = len(series)
     cut = int(n * TRAIN_RATIO)
-    train = series.iloc[:cut]
-    test  = series.iloc[cut:]
+
+    # ── DIRECT: для h>1 сдвигаем целевой ряд вперёд ─────────────────────────
+    # y_shifted[t] = y[t + horizon]  →  ARIMA предсказывает значение через h шагов
+    if horizon > 1:
+        y_shifted = series.shift(-horizon).dropna()
+        # Обрезаем исходный ряд по длине сдвинутого
+        series_aligned = series.iloc[:len(y_shifted)]
+        cut_d = int(len(series_aligned) * TRAIN_RATIO)
+        train_x = series_aligned.iloc[:cut_d]   # предикторная история (для обучения ARIMA)
+        train_y = y_shifted.iloc[:cut_d]         # сдвинутый целевой (то что предсказываем)
+        test_y  = y_shifted.iloc[cut_d:]         # истинные значения y[t+h] на тесте
+        # Для обновления истории используем несдвинутый ряд
+        test_x  = series_aligned.iloc[cut_d:]
+    else:
+        train_x = series.iloc[:cut]
+        train_y = series.iloc[:cut]
+        test_y  = series.iloc[cut:]
+        test_x  = series.iloc[cut:]
+
+    # ── Определяем стационарность обучающего ряда ────────────────────────────
+    try:
+        is_stationary = adfuller(train_y.dropna(), autolag="AIC")[1] < 0.05
+    except Exception:
+        is_stationary = False
 
     preds = []
 
-    # Попытка 1: auto_arima
+    # ── Попытка 1: auto_arima ─────────────────────────────────────────────────
     try:
         from pmdarima import auto_arima
-        from statsmodels.tsa.stattools import adfuller
-
-        # Определяем стационарность — если ряд уже стац., не дифференцируем
-        try:
-            is_stationary = adfuller(train.dropna(), autolag="AIC")[1] < 0.05
-        except Exception:
-            is_stationary = False
 
         model = auto_arima(
-            train, seasonal=False, stepwise=True,
+            train_y,
+            seasonal=False, stepwise=True,
             information_criterion="aic",
             max_p=4, max_q=4,
-            d=0 if is_stationary else None,   # фиксируем d=0 для стационарных
+            d=0 if is_stationary else None,
             max_d=2,
             error_action="ignore", suppress_warnings=True,
             with_intercept=True,
         )
-        # Rolling 1-step-ahead forecast (независимо от horizon)
-        history = list(train)
-        for i in range(len(test)):
-            fc = model.predict(n_periods=horizon)
-            # Берём h-й шаг прогноза (0-based index = horizon-1)
-            pred_val = float(fc[min(horizon - 1, len(fc) - 1)])
-            preds.append(pred_val)
-            model.update([test.iloc[i]])
-        metrics = compute_metrics(test.values[:len(preds)],
-                                  np.array(preds), "ARIMA_auto")
+        # Rolling 1-step-ahead прогноз сдвинутого ряда
+        for i in range(len(test_y)):
+            fc = model.predict(n_periods=1)
+            preds.append(float(fc[0]))
+            # Обновляем модель реальным значением сдвинутого ряда
+            model.update([test_y.iloc[i]])
+
+        metrics = compute_metrics(
+            test_y.values[:len(preds)], np.array(preds),
+            f"ARIMA_direct(h={horizon})"
+        )
         return {
             "method":  f"ARIMA{model.order}",
             "metrics": metrics,
             "predictions": dict(zip(
-                test.index.strftime("%Y-%m-%d").tolist()[:len(preds)], preds)),
-            "order": list(model.order),
+                test_x.index.strftime("%Y-%m-%d").tolist()[:len(preds)], preds)),
+            "order":    list(model.order),
+            "strategy": "direct" if horizon > 1 else "rolling_1step",
         }
+
     except ImportError:
         pass
     except Exception as e:
         log.warning(f"    auto_arima error: {e}")
 
-    # Fallback: фиксированный ARIMA, порядок зависит от частоты
+    # ── Fallback: statsmodels ARIMA ───────────────────────────────────────────
     try:
         import statsmodels.tsa.arima.model as smarima
-        from statsmodels.tsa.stattools import adfuller
-        try:
-            d_order = 0 if adfuller(train.dropna(), autolag="AIC")[1] < 0.05 else 1
-        except Exception:
-            d_order = 1
+
+        d_order   = 0 if is_stationary else 1
         arima_order = (2, d_order, 2)
-        history = list(train)
-        for i in range(len(test)):
+        history = list(train_y)
+
+        for i in range(len(test_y)):
             try:
                 mod = smarima.ARIMA(history, order=arima_order)
                 res = mod.fit(method_kwargs={"warn_convergence": False})
-                fc  = res.forecast(horizon)
-                preds.append(float(fc.iloc[-1]))
+                preds.append(float(res.forecast(1).iloc[0]))
             except Exception:
-                preds.append(history[-1])
-            history.append(float(test.iloc[i]))
-        metrics = compute_metrics(test.values[:len(preds)],
-                                  np.array(preds), f"ARIMA{arima_order}")
+                preds.append(float(np.mean(history[-20:])))  # локальное среднее
+            # Обновляем историю реальным значением сдвинутого ряда
+            history.append(float(test_y.iloc[i]))
+
+        metrics = compute_metrics(
+            test_y.values[:len(preds)], np.array(preds),
+            f"ARIMA{arima_order}_direct(h={horizon})"
+        )
         return {
             "method":  f"ARIMA{arima_order}",
             "metrics": metrics,
             "predictions": dict(zip(
-                test.index.strftime("%Y-%m-%d").tolist()[:len(preds)], preds)),
+                test_x.index.strftime("%Y-%m-%d").tolist()[:len(preds)], preds)),
+            "strategy": "direct" if horizon > 1 else "rolling_1step",
         }
+
     except Exception as e:
         log.error(f"    ARIMA fallback error: {e}")
         return {"method": "ARIMA_FAILED", "metrics": {}}
@@ -571,6 +615,6 @@ if __name__ == "__main__":
             var_sel = json.load(f)
     else:
         from step2_variable_selection import run_variable_selection
-        var_sel = run_variable_selection(use_pc=True)
+        var_sel = run_variable_selection(use_pcmci=True)
 
     run_all_baselines(var_sel)

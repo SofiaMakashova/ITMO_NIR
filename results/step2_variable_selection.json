@@ -3,28 +3,28 @@
     "heuristic": [
       "Brent",
       "Copper",
-      "Yield10Y",
-      "SP500"
+      "Yield10Y"
     ],
     "causal_expert": [
       "VIX",
+      "Brent",
       "SP500",
       "Yield10Y",
       "IndProd_USA"
     ],
     "causal_pc": [
-      "Brent"
+      "Brent",
+      "SP500"
     ],
     "causal_union": [
       "VIX",
+      "Brent",
       "SP500",
       "Yield10Y",
-      "IndProd_USA",
-      "Brent"
+      "IndProd_USA"
     ],
     "causes": [
       "EIA_crude_stocks",
-      "Brent",
       "DXY",
       "ISM_PMI",
       "OPEC_proxy"
@@ -33,24 +33,54 @@
       "EIA_gas_stocks"
     ],
     "freq": "D",
-    "file": "A_WTI_oil.csv"
+    "file": "A_WTI_oil.csv",
+    "selection_meta": {
+      "heuristic": {
+        "method": "LassoCV",
+        "n_pre_candidates": 6,
+        "n_selected": 3,
+        "lasso_alpha": 0.028661206268921317,
+        "n_final": 3
+      },
+      "pcmci": {
+        "method": "PCMCI+_ParCorr",
+        "tau_max": 4,
+        "pc_alpha": 0.05,
+        "n_vars": 7,
+        "n_obs": 4101,
+        "parents": {
+          "Brent": {
+            "tau": 1,
+            "p_val": 3.6262926563180804e-16,
+            "val": 0.1270900315275221
+          },
+          "SP500": {
+            "tau": 2,
+            "p_val": 0.0006557992815503039,
+            "val": 0.05331057469314038
+          }
+        }
+      }
+    }
   },
   "NatGas": {
-    "heuristic": [],
-    "causal_expert": [
+    "heuristic": [
       "VIX",
+      "Cushing_stocks",
+      "Yield10Y",
+      "IndProd_USA",
+      "SP500"
+    ],
+    "causal_expert": [
       "SP500",
-      "DXY",
-      "IndProd_USA"
+      "DXY"
     ],
     "causal_pc": [
-      "VIX"
+      "SP500"
     ],
     "causal_union": [
-      "VIX",
       "SP500",
-      "DXY",
-      "IndProd_USA"
+      "DXY"
     ],
     "causes": [
       "EIA_gas_stocks",
@@ -62,14 +92,31 @@
       "EIA_crude_stocks"
     ],
     "freq": "D",
-    "file": "A_NatGas.csv"
+    "file": "A_NatGas.csv",
+    "selection_meta": {
+      "heuristic": {
+        "method": "LassoCV",
+        "n_pre_candidates": 5,
+        "n_selected": 5,
+        "lasso_alpha": 0.18475136503240136,
+        "n_final": 5
+      },
+      "pcmci": {
+        "method": "PCMCI+_ParCorr",
+        "tau_max": 4,
+        "pc_alpha": 0.05,
+        "n_vars": 4,
+        "n_obs": 4101,
+        "parents": {}
+      }
+    }
   },
   "Gold": {
     "heuristic": [
       "Silver",
       "DXY",
-      "Copper",
-      "Yield10Y"
+      "Yield10Y",
+      "Copper"
     ],
     "causal_expert": [
       "SP500",
@@ -77,15 +124,18 @@
       "FedFunds"
     ],
     "causal_pc": [
-      "Yield10Y",
-      "Silver"
+      "Silver",
+      "SP500",
+      "Copper",
+      "DXY"
     ],
     "causal_union": [
       "SP500",
       "IndProd_USA",
       "FedFunds",
-      "Yield10Y",
-      "Silver"
+      "Silver",
+      "Copper",
+      "DXY"
     ],
     "causes": [
       "DXY",
@@ -98,7 +148,45 @@
       "Copper"
     ],
     "freq": "D",
-    "file": "A_Gold.csv"
+    "file": "A_Gold.csv",
+    "selection_meta": {
+      "heuristic": {
+        "method": "LassoCV",
+        "n_pre_candidates": 5,
+        "n_selected": 4,
+        "lasso_alpha": 0.9546883508702395,
+        "n_final": 4
+      },
+      "pcmci": {
+        "method": "PCMCI+_ParCorr",
+        "tau_max": 4,
+        "pc_alpha": 0.05,
+        "n_vars": 9,
+        "n_obs": 4101,
+        "parents": {
+          "DXY": {
+            "tau": 3,
+            "p_val": 0.010472175663012595,
+            "val": 0.04003763539327301
+          },
+          "Silver": {
+            "tau": 2,
+            "p_val": 6.337373166751866e-07,
+            "val": -0.07784233168421588
+          },
+          "SP500": {
+            "tau": 1,
+            "p_val": 3.4765184070246453e-06,
+            "val": 0.07255773674543292
+          },
+          "Copper": {
+            "tau": 1,
+            "p_val": 0.00011191513422291562,
+            "val": -0.06042164864020382
+          }
+        }
+      }
+    }
   },
   "EURUSD": {
     "heuristic": [
@@ -112,13 +200,19 @@
       "WTI"
     ],
     "causal_pc": [
-      "Gold"
+      "UST_2Y",
+      "Gold",
+      "SP500",
+      "UST_10Y",
+      "WTI"
     ],
     "causal_union": [
       "VIX",
       "SP500",
       "Gold",
-      "WTI"
+      "WTI",
+      "UST_2Y",
+      "UST_10Y"
     ],
     "causes": [
       "T10Y2Y",
@@ -131,12 +225,56 @@
       "UST_2Y"
     ],
     "freq": "D",
-    "file": "B_EURUSD.csv"
+    "file": "B_EURUSD.csv",
+    "selection_meta": {
+      "heuristic": {
+        "method": "LassoCV",
+        "n_pre_candidates": 2,
+        "n_selected": 2,
+        "lasso_alpha": 2.6438708628880628e-05,
+        "n_final": 2
+      },
+      "pcmci": {
+        "method": "PCMCI+_ParCorr",
+        "tau_max": 4,
+        "pc_alpha": 0.05,
+        "n_vars": 10,
+        "n_obs": 4176,
+        "parents": {
+          "UST_10Y": {
+            "tau": 1,
+            "p_val": 9.77807475921147e-06,
+            "val": 0.0684923956923902
+          },
+          "SP500": {
+            "tau": 1,
+            "p_val": 6.5429710396440286e-15,
+            "val": 0.12045058494348565
+          },
+          "Gold": {
+            "tau": 1,
+            "p_val": 4.073471066097236e-23,
+            "val": 0.15272614300416504
+          },
+          "WTI": {
+            "tau": 1,
+            "p_val": 1.1429864511826852e-05,
+            "val": 0.06800218131186438
+          },
+          "UST_2Y": {
+            "tau": 1,
+            "p_val": 1.2077358275864274e-28,
+            "val": -0.1710148020581532
+          }
+        }
+      }
+    }
   },
   "GBPUSD": {
     "heuristic": [
       "AUDUSD",
-      "USDCHF"
+      "USDCHF",
+      "Nikkei"
     ],
     "causal_expert": [
       "VIX",
@@ -145,14 +283,19 @@
       "WTI"
     ],
     "causal_pc": [
-      "VIX",
-      "Gold"
+      "SP500",
+      "UST_2Y",
+      "Gold",
+      "WTI",
+      "M2_USA"
     ],
     "causal_union": [
       "VIX",
       "SP500",
       "Gold",
-      "WTI"
+      "WTI",
+      "UST_2Y",
+      "M2_USA"
     ],
     "causes": [
       "FedFunds",
@@ -165,7 +308,50 @@
       "UST_2Y"
     ],
     "freq": "D",
-    "file": "B_GBPUSD.csv"
+    "file": "B_GBPUSD.csv",
+    "selection_meta": {
+      "heuristic": {
+        "method": "LassoCV",
+        "n_pre_candidates": 3,
+        "n_selected": 3,
+        "lasso_alpha": 0.00023267690320129513,
+        "n_final": 3
+      },
+      "pcmci": {
+        "method": "PCMCI+_ParCorr",
+        "tau_max": 4,
+        "pc_alpha": 0.05,
+        "n_vars": 9,
+        "n_obs": 4176,
+        "parents": {
+          "M2_USA": {
+            "tau": 4,
+            "p_val": 0.004025566630898057,
+            "val": -0.044594775814462764
+          },
+          "SP500": {
+            "tau": 1,
+            "p_val": 4.672207103150525e-52,
+            "val": 0.23222766793688593
+          },
+          "Gold": {
+            "tau": 1,
+            "p_val": 3.2479997715373333e-16,
+            "val": 0.1261660015088111
+          },
+          "WTI": {
+            "tau": 1,
+            "p_val": 8.215864885887403e-09,
+            "val": 0.08922579821211793
+          },
+          "UST_2Y": {
+            "tau": 1,
+            "p_val": 1.1890649802927234e-25,
+            "val": -0.16134983986465484
+          }
+        }
+      }
+    }
   },
   "USDJPY": {
     "heuristic": [
@@ -179,14 +365,19 @@
       "DXY"
     ],
     "causal_pc": [
-      "VIX",
+      "DXY",
+      "UST_10Y",
+      "SP500",
+      "UST_2Y",
       "Gold"
     ],
     "causal_union": [
       "Gold",
       "WTI",
       "DXY",
-      "VIX"
+      "UST_10Y",
+      "SP500",
+      "UST_2Y"
     ],
     "causes": [
       "Yield10Y",
@@ -200,33 +391,88 @@
       "T10Y2Y"
     ],
     "freq": "D",
-    "file": "B_USDJPY.csv"
+    "file": "B_USDJPY.csv",
+    "selection_meta": {
+      "heuristic": {
+        "method": "LassoCV",
+        "n_pre_candidates": 3,
+        "n_selected": 3,
+        "lasso_alpha": 0.04057824941118262,
+        "n_final": 3
+      },
+      "pcmci": {
+        "method": "PCMCI+_ParCorr",
+        "tau_max": 4,
+        "pc_alpha": 0.05,
+        "n_vars": 10,
+        "n_obs": 4176,
+        "parents": {
+          "UST_10Y": {
+            "tau": 1,
+            "p_val": 2.6405691890845033e-36,
+            "val": 0.19325100981730292
+          },
+          "SP500": {
+            "tau": 1,
+            "p_val": 8.060293435536873e-25,
+            "val": 0.1586074450065163
+          },
+          "Gold": {
+            "tau": 1,
+            "p_val": 0.00027002382503623046,
+            "val": -0.05647332358023852
+          },
+          "DXY": {
+            "tau": 1,
+            "p_val": 7.328950597769879e-188,
+            "val": 0.43104775280847235
+          },
+          "UST_2Y": {
+            "tau": 1,
+            "p_val": 1.982693133411191e-17,
+            "val": 0.13119193297798462
+          }
+        }
+      }
+    }
   },
   "CPI": {
     "heuristic": [
-      "PPI_MoM",
-      "PPI",
       "PCE_core",
+      "PPI",
       "WTI_oil",
-      "PPI_YoY",
+      "PPI_MoM",
       "PPI_lag1",
-      "RetailSales",
-      "NFP"
+      "PPI_YoY",
+      "FedFunds_MoM",
+      "NFP_lag1",
+      "M2_MoM",
+      "Savings_Rate",
+      "NFP_YoY",
+      "Unemployment"
     ],
     "causal_expert": [
       "FedFunds",
       "Unemployment",
-      "HousingStarts"
+      "NFP",
+      "HousingStarts",
+      "M2",
+      "DXY",
+      "Yield10Y",
+      "SP500"
     ],
     "causal_pc": [
-      "PPI",
-      "FedFunds"
+      "M2"
     ],
     "causal_union": [
       "FedFunds",
       "Unemployment",
+      "NFP",
       "HousingStarts",
-      "PPI"
+      "M2",
+      "DXY",
+      "Yield10Y",
+      "SP500"
     ],
     "causes": [
       "PPI",
@@ -239,18 +485,40 @@
       "EIA_crude_stocks"
     ],
     "freq": "ME",
-    "file": "C_CPI.csv"
+    "file": "C_CPI.csv",
+    "selection_meta": {
+      "heuristic": {
+        "method": "LassoCV",
+        "n_pre_candidates": 24,
+        "n_selected": 12,
+        "lasso_alpha": 0.02868069707433558,
+        "n_final": 12
+      },
+      "pcmci": {
+        "method": "PCMCI+_ParCorr",
+        "tau_max": 3,
+        "pc_alpha": 0.05,
+        "n_vars": 9,
+        "n_obs": 183,
+        "parents": {
+          "M2": {
+            "tau": 2,
+            "p_val": 0.00014285752536660483,
+            "val": 0.28599355390745224
+          }
+        }
+      }
+    }
   },
   "IndProd": {
     "heuristic": [
       "Unemployment",
-      "Unemployment_lag1",
       "M2_MoM",
-      "Unemployment_lag3",
-      "Savings_Rate",
       "Unemployment_YoY",
-      "M2",
-      "M2_lag1"
+      "FedFunds_YoY",
+      "PPI_MoM",
+      "M2_YoY",
+      "CredCardDebt"
     ],
     "causal_expert": [
       "Unemployment",
@@ -258,13 +526,14 @@
       "M2"
     ],
     "causal_pc": [
-      "Unemployment",
+      "FedFunds",
       "M2"
     ],
     "causal_union": [
       "Unemployment",
       "HousingStarts",
-      "M2"
+      "M2",
+      "FedFunds"
     ],
     "causes": [
       "ISM_PMI",
@@ -277,17 +546,43 @@
       "EIA_crude_stocks"
     ],
     "freq": "ME",
-    "file": "C_IndProd.csv"
+    "file": "C_IndProd.csv",
+    "selection_meta": {
+      "heuristic": {
+        "method": "LassoCV",
+        "n_pre_candidates": 23,
+        "n_selected": 7,
+        "lasso_alpha": 0.07896017124675027,
+        "n_final": 7
+      },
+      "pcmci": {
+        "method": "PCMCI+_ParCorr",
+        "tau_max": 3,
+        "pc_alpha": 0.05,
+        "n_vars": 8,
+        "n_obs": 183,
+        "parents": {
+          "FedFunds": {
+            "tau": 1,
+            "p_val": 1.0011187576511689e-13,
+            "val": 0.5278578588991087
+          },
+          "M2": {
+            "tau": 2,
+            "p_val": 0.002979174974943241,
+            "val": 0.22517746535463473
+          }
+        }
+      }
+    }
   },
   "UMCSENT": {
     "heuristic": [
-      "Unemployment_MoM",
       "RetailSales",
       "PPI_lag3",
-      "NFP",
-      "M2",
-      "NFP_MoM",
       "M2_YoY",
+      "Unemployment_MoM",
+      "M2_lag3",
       "M2_MoM"
     ],
     "causal_expert": [
@@ -297,7 +592,9 @@
       "CredCardDebt"
     ],
     "causal_pc": [
-      "RetailSales"
+      "RetailSales",
+      "CredCardDebt",
+      "FedFunds"
     ],
     "causal_union": [
       "NFP",
@@ -317,15 +614,31 @@
       "EIA_gas_stocks"
     ],
     "freq": "ME",
-    "file": "C_UMCSENT.csv"
+    "file": "C_UMCSENT.csv",
+    "selection_meta": {
+      "heuristic": {
+        "method": "LassoCV",
+        "n_pre_candidates": 11,
+        "n_selected": 6,
+        "lasso_alpha": 0.1558516215240441,
+        "n_final": 6
+      },
+      "pcmci": {
+        "method": "PCMCI+_ParCorr",
+        "tau_max": 3,
+        "pc_alpha": 0.05,
+        "n_vars": 8,
+        "n_obs": 183,
+        "parents": {}
+      }
+    }
   },
   "BTC": {
     "heuristic": [
       "BNB",
-      "XRP",
       "SOL",
-      "NASDAQ",
-      "SP500"
+      "XRP",
+      "NASDAQ"
     ],
     "causal_expert": [
       "VIX",
@@ -333,13 +646,13 @@
       "Yield10Y"
     ],
     "causal_pc": [
-      "SP500"
+      "BTC_Volume"
     ],
     "causal_union": [
       "VIX",
       "Gold",
       "Yield10Y",
-      "SP500"
+      "BTC_Volume"
     ],
     "causes": [
       "M2",
@@ -353,7 +666,30 @@
       "BTC_DailyRange"
     ],
     "freq": "D",
-    "file": "D_BTC.csv"
+    "file": "D_BTC.csv",
+    "selection_meta": {
+      "heuristic": {
+        "method": "LassoCV",
+        "n_pre_candidates": 5,
+        "n_selected": 4,
+        "lasso_alpha": 1.0154114258389468,
+        "n_final": 4
+      },
+      "pcmci": {
+        "method": "PCMCI+_ParCorr",
+        "tau_max": 4,
+        "pc_alpha": 0.05,
+        "n_vars": 10,
+        "n_obs": 2185,
+        "parents": {
+          "BTC_Volume": {
+            "tau": 4,
+            "p_val": 0.002922797811664631,
+            "val": -0.06380764096267777
+          }
+        }
+      }
+    }
   },
   "ETH": {
     "heuristic": [
@@ -361,7 +697,7 @@
       "SOL",
       "XRP",
       "NASDAQ",
-      "SP500"
+      "DXY"
     ],
     "causal_expert": [
       "VIX",
@@ -370,8 +706,6 @@
       "FedFunds"
     ],
     "causal_pc": [
-      "DXY",
-      "SP500",
       "ETH_DailyRange"
     ],
     "causal_union": [
@@ -379,8 +713,6 @@
       "Gold",
       "Yield10Y",
       "FedFunds",
-      "DXY",
-      "SP500",
       "ETH_DailyRange"
     ],
     "causes": [
@@ -396,6 +728,29 @@
       "BTC_DailyRange"
     ],
     "freq": "D",
-    "file": "D_ETH.csv"
+    "file": "D_ETH.csv",
+    "selection_meta": {
+      "heuristic": {
+        "method": "LassoCV",
+        "n_pre_candidates": 6,
+        "n_selected": 5,
+        "lasso_alpha": 2.47565692286744,
+        "n_final": 5
+      },
+      "pcmci": {
+        "method": "PCMCI+_ParCorr",
+        "tau_max": 4,
+        "pc_alpha": 0.05,
+        "n_vars": 11,
+        "n_obs": 2185,
+        "parents": {
+          "ETH_DailyRange": {
+            "tau": 3,
+            "p_val": 0.03396296133799546,
+            "val": -0.04552351560748265
+          }
+        }
+      }
+    }
   }
 }

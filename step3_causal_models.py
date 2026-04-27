@@ -117,117 +117,246 @@ def train_test_split_ts(X: pd.DataFrame, y: pd.Series,
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# МЕТОД 1: CausalImpact (байесовская структурная модель)
+# МЕТОД 1: SCM-прогноз через DoWhy (Structural Causal Model)
 # ══════════════════════════════════════════════════════════════════════════════
 
-def run_causal_impact(df: pd.DataFrame, target: str,
-                      controls: List[str],
-                      horizon: int = 1) -> Dict:
+def run_scm_dowhy(df: pd.DataFrame, target: str,
+                  causes: List[str],
+                  controls: List[str],
+                  dag: object = None,
+                  horizon: int = 1) -> Dict:
     """
-    CausalImpact: моделирует контрфактический сценарий.
-    Использует tfcausalimpact (TF-based) или causalimpact (R-like Python).
-    Fallback: BSTS через sktime / statsmodels.
+    SCM-прогноз (Structural Causal Model) через DoWhy + Ridge/GBM.
+
+    Почему не CausalImpact
+    ─────────────────────
+    CausalImpact предназначен для оценки эффекта конкретного вмешательства
+    (intervention): он строит контрфактик «что было бы без события» и меряет
+    разницу. В пайплайне нет заданного вмешательства — есть задача прогноза.
+    Применение CausalImpact к train/test split методологически некорректно:
+    post_period — это не период вмешательства, а просто тестовая выборка,
+    и инференс CausalImpact не равнозначен h-step ahead прогнозу.
+
+    Что делает SCM-прогноз
+    ──────────────────────
+    1. DoWhy строит CausalModel из DAG (граф задаётся через causes/controls).
+    2. Идентифицирует backdoor adjustment set — переменные Z, блокирующие
+       все backdoor-пути от causes X к target Y.
+    3. Опционально верифицирует идентификацию через рефутацию
+       (placebo_treatment_refuter, random_common_cause).
+    4. Строит прогнозную модель: Y(t+h) ~ f(X_causes_lag, Z_backdoor_lag),
+       где набор регрессоров определён каузально, а не корреляционно.
+       Используется RidgeCV (линейный, интерпретируемый) и GBM (нелинейный).
+       Финальный прогноз — среднее взвешенное (ensemble).
+
+    Прямой h-step прогноз
+    ─────────────────────
+    Для горизонта h > 1: целевая переменная Y сдвигается на -h при обучении
+    (y[t+h] ~ X[t]), что соответствует прямому (DIRECT) методу мультишаговых
+    прогнозов — в отличие от рекурсивного (накопление ошибки).
+
+    Fallback
+    ────────
+    При отсутствии DoWhy или ошибке — откат к Ridge-регрессии с ручным
+    backdoor adjustment (causes_lags + controls_lags).
+
+    Параметры
+    ---------
+    dag      : AssetDAG объект из step1 (опционально, для DoWhy графа)
+    horizon  : горизонт прогноза в шагах
     """
-    log.info(f"  [CausalImpact] {target}")
+    log.info(f"  [SCM-DoWhy] {target}  h={horizon}")
 
-    available_controls = [c for c in controls if c in df.columns]
-    if not available_controls:
-        available_controls = [c for c in df.columns
-                              if c != target and not c.startswith(f"{target}_")][:3]
+    # ── Подготовка доступных переменных ──────────────────────────────────────
+    avail_causes   = [c for c in causes   if c in df.columns]
+    avail_controls = [c for c in controls if c in df.columns]
 
-    sub = df[[target] + available_controls].dropna()
-    n = len(sub)
-    cut = int(n * TRAIN_RATIO)
+    if not avail_causes:
+        avail_causes = [c for c in df.columns
+                        if c != target and not c.startswith(f"{target}_")][:3]
 
-    pre_period  = [sub.index[0],  sub.index[cut - 1]]
-    post_period = [sub.index[cut], sub.index[-1]]
+    all_features = list(dict.fromkeys(avail_causes + avail_controls))
+    if not all_features:
+        return {"method": "SCM_SKIPPED", "metrics": {}, "predictions": {}}
 
-    # Попытка 1: tfcausalimpact
+    # ── Матрица признаков с лагами ────────────────────────────────────────────
+    feat = pd.DataFrame(index=df.index)
+    # Лаги целевого ряда (авторегрессионная компонента)
+    for lag in range(1, 4):
+        feat[f"{target}_lag{lag}"] = df[target].shift(lag)
+    # Лаги причин (X) и контролей (Z)
+    for col in all_features:
+        for lag in range(1, 3):
+            feat[f"{col}_lag{lag}"] = df[col].shift(lag)
+    # Целевой вектор: прямой h-step прогноз
+    feat["__y_h__"] = df[target].shift(-horizon)
+
+    feat = feat.dropna()
+    if len(feat) < 60:
+        return {"method": "SCM_SKIPPED_insufficient_data", "metrics": {}}
+
+    cut = int(len(feat) * TRAIN_RATIO)
+    pred_cols = [c for c in feat.columns if c != "__y_h__"]
+    X_all = feat[pred_cols].values
+    y_all = feat["__y_h__"].values
+
+    X_tr, X_te = X_all[:cut], X_all[cut:]
+    y_tr, y_te = y_all[:cut], y_all[cut:]
+
+    # ── Колонки по каузальным ролям ──────────────────────────────────────────
+    cause_feat_cols   = [c for c in pred_cols
+                         if any(c.startswith(f"{ca}_lag") for ca in avail_causes)]
+    control_feat_cols = [c for c in pred_cols
+                         if any(c.startswith(f"{co}_lag") for co in avail_controls)
+                         and c not in cause_feat_cols]
+    ar_cols           = [c for c in pred_cols if c.startswith(f"{target}_lag")]
+
+    # Backdoor-корректный набор: causes + controls + AR (без лишних)
+    backdoor_cols = list(dict.fromkeys(ar_cols + cause_feat_cols + control_feat_cols))
+    if not backdoor_cols:
+        backdoor_cols = pred_cols
+
+    # ── DoWhy: идентификация и рефутация ─────────────────────────────────────
+    dowhy_backdoor: Optional[List[str]] = None
+    refutation_pval: Optional[float]   = None
+
     try:
-        from causalimpact import CausalImpact
-        ci = CausalImpact(sub, pre_period, post_period)
-        summary = ci.summary()
+        from dowhy import CausalModel
 
-        y_pred_all = ci.inferences["point_pred"].values
-        y_true_all = sub[target].values
+        # Строим граф на уровне исходных переменных (не лагов)
+        if avail_causes and avail_controls:
+            edges = (
+                [f"{c} -> {target};" for c in avail_causes] +
+                [f"{z} -> {target};" for z in avail_controls] +
+                [f"{z} -> {c};" for z in avail_controls for c in avail_causes]
+            )
+            # graph_str не используется — pydot не требуется
+            # graph_str = "digraph { " + " ".join(edges) + " }"
 
-        train_pred = y_pred_all[:cut]
-        test_pred  = y_pred_all[cut:]
-        test_true  = y_true_all[cut:]
+            # Подвыборка для DoWhy (работаем на исходном df, не на feat)
+            dw_cols = list(dict.fromkeys([target] + avail_causes + avail_controls))
+            dw_df   = df[dw_cols].dropna().iloc[:cut]  # только train
 
-        metrics = compute_metrics(test_true, test_pred, "CausalImpact")
-        return {
-            "method":  "CausalImpact",
-            "metrics": metrics,
-            "predictions": dict(zip(
-                sub.index[cut:].strftime("%Y-%m-%d").tolist(),
-                test_pred.tolist()
-            )),
-            "summary": str(summary)[:500],
-        }
+            if len(dw_df) >= 30 and avail_causes:
+                dw_model = CausalModel(
+                    data=dw_df,
+                    treatment=avail_causes,
+                    outcome=target,
+                    common_causes=avail_controls if avail_controls else None,
+                    # graph не передаётся — избегаем зависимости от pydot
+                )
+                identified = dw_model.identify_effect(
+                    proceed_when_unidentifiable=True
+                )
+                dowhy_backdoor = identified.get_backdoor_variables()
+                log.info(f"    DoWhy backdoor set: {dowhy_backdoor}")
+
+                # Рефутация: placebo treatment на первом причинном ряде
+                # DoWhy placebo_treatment_refuter требует 1D treatment —
+                # при множественном treatment берём только первый для теста
+                try:
+                    first_cause  = avail_causes[:1]
+                    dw_model_1t  = CausalModel(
+                        data=dw_df,
+                        treatment=first_cause,
+                        outcome=target,
+                        common_causes=avail_controls if avail_controls else None,
+                    )
+                    identified_1t = dw_model_1t.identify_effect(
+                        proceed_when_unidentifiable=True
+                    )
+                    dw_est = dw_model_1t.estimate_effect(
+                        identified_1t,
+                        method_name="backdoor.linear_regression",
+                        control_value=0, treatment_value=1,
+                    )
+                    ref = dw_model_1t.refute_estimate(
+                        identified_1t, dw_est,
+                        method_name="placebo_treatment_refuter",
+                        placebo_type="permute",
+                        num_simulations=50,
+                    )
+                    refutation_pval = ref.refutation_result.get("p_value")
+                    log.info(f"    Рефутация ({first_cause[0]}) p={refutation_pval:.3f} "
+                             f"({'OK' if refutation_pval and refutation_pval > 0.05 else 'WARN: возможна spurious причинность'})")
+                except Exception as re:
+                    log.warning(f"    Рефутация пропущена: {re}")
+
+                # Если DoWhy нашёл непустой backdoor — уточняем набор контролей
+                if dowhy_backdoor:
+                    dw_ctrl_lag = [c for c in pred_cols
+                                   if any(c.startswith(f"{z}_lag")
+                                          for z in dowhy_backdoor)]
+                    if dw_ctrl_lag:
+                        control_feat_cols = dw_ctrl_lag
+                        backdoor_cols = list(dict.fromkeys(
+                            ar_cols + cause_feat_cols + control_feat_cols
+                        ))
+                        log.info(f"    Обновлён backdoor feature set: "
+                                 f"{len(backdoor_cols)} колонок")
+
     except ImportError:
-        log.warning("    causalimpact не установлен, использую BSTS proxy")
-
-    # Fallback: Bayesian Structural Time Series proxy via Kalman Filter
-    return _bsts_proxy(sub, target, available_controls, cut, horizon=horizon)
-
-
-def _bsts_proxy(sub: pd.DataFrame, target: str,
-                controls: List[str], cut: int,
-                horizon: int = 1) -> Dict:
-    """
-    BSTS-прокси: локальный уровень + регрессоры через Unobserved Components.
-    Для горизонта h > 1 применяем прямой multi-step: обучаем на y[t+h] ~ X[t].
-    """
-    try:
-        import statsmodels.api as sm
-
-        # Сдвигаем target на horizon вперёд для прямого прогноза
-        y_shifted = sub[target].shift(-horizon)
-        sub_h = sub.copy()
-        sub_h["__y_h__"] = y_shifted
-        sub_h = sub_h.dropna()
-
-        cut_h = min(cut, len(sub_h) - 2)
-        y_train = sub_h["__y_h__"].iloc[:cut_h]
-        y_test_ref = sub[target].iloc[cut:cut + len(sub_h) - cut_h]
-        X_train = sub_h[controls].iloc[:cut_h] if controls else pd.DataFrame(index=sub_h.index[:cut_h])
-        X_test  = sub_h[controls].iloc[cut_h:] if controls else pd.DataFrame(index=sub_h.index[cut_h:])
-
-        # Нормализация
-        scaler_x = StandardScaler()
-        if not X_train.empty and X_train.shape[1] > 0:
-            X_tr = scaler_x.fit_transform(X_train)
-            X_te = scaler_x.transform(X_test)
-        else:
-            X_tr, X_te = None, None
-
-        # Unobserved Components Model
-        model = sm.tsa.UnobservedComponents(
-            y_train.values,
-            level="local level",
-            exog=X_tr
-        )
-        res = model.fit(disp=False)
-
-        n_test = len(X_test)
-        forecast = res.forecast(steps=n_test, exog=X_te)
-
-        # Сравниваем с истинными значениями target (не сдвинутыми)
-        y_true_arr = sub[target].iloc[cut_h:cut_h + n_test].values
-        metrics = compute_metrics(y_true_arr, forecast, f"BSTS_proxy(h={horizon})")
-
-        return {
-            "method":  f"BSTS_proxy",
-            "metrics": metrics,
-            "predictions": dict(zip(
-                sub.index[cut_h:cut_h + n_test].strftime("%Y-%m-%d").tolist(),
-                forecast.tolist()
-            )),
-        }
+        log.warning("    dowhy не установлен — используем ручной backdoor")
     except Exception as e:
-        log.error(f"    BSTS proxy ошибка: {e}")
-        return {"method": "CausalImpact_FAILED", "metrics": {}, "predictions": {}}
+        log.warning(f"    DoWhy ошибка: {e}")
+
+    # ── Прогнозные модели на backdoor-корректном наборе признаков ─────────────
+    scaler = StandardScaler()
+    bd_idx = [pred_cols.index(c) for c in backdoor_cols if c in pred_cols]
+
+    if not bd_idx:
+        bd_idx = list(range(len(pred_cols)))
+
+    X_bd_tr = scaler.fit_transform(X_tr[:, bd_idx])
+    X_bd_te = scaler.transform(X_te[:, bd_idx])
+
+    preds_list = []
+
+    # Модель 1: RidgeCV (линейная, интерпретируемая)
+    try:
+        from sklearn.linear_model import RidgeCV
+        ridge = RidgeCV(alphas=[0.01, 0.1, 1.0, 10.0, 100.0], cv=5)
+        ridge.fit(X_bd_tr, y_tr)
+        preds_list.append(("Ridge", ridge.predict(X_bd_te), 0.4))
+        log.info(f"    Ridge alpha={ridge.alpha_:.3f}")
+    except Exception as e:
+        log.warning(f"    Ridge ошибка: {e}")
+
+    # Модель 2: GradientBoosting (нелинейная)
+    try:
+        gbm = GradientBoostingRegressor(
+            n_estimators=150, max_depth=3,
+            learning_rate=0.05, subsample=0.8,
+            random_state=42
+        )
+        gbm.fit(X_bd_tr, y_tr)
+        preds_list.append(("GBM", gbm.predict(X_bd_te), 0.6))
+        log.info(f"    GBM n_features={X_bd_tr.shape[1]}")
+    except Exception as e:
+        log.warning(f"    GBM ошибка: {e}")
+
+    if not preds_list:
+        log.error(f"    Все модели SCM упали")
+        return {"method": "SCM_FAILED", "metrics": {}, "predictions": {}}
+
+    # Взвешенное среднее (ensemble)
+    total_w  = sum(w for _, _, w in preds_list)
+    y_pred   = sum(pred * (w / total_w) for _, pred, w in preds_list)
+    model_names = "+".join(name for name, _, _ in preds_list)
+
+    metrics = compute_metrics(y_te, y_pred, f"SCM_{model_names}(h={horizon})")
+
+    return {
+        "method":            f"SCM_{model_names}",
+        "metrics":           metrics,
+        "predictions":       dict(zip(
+            feat.index[cut:].strftime("%Y-%m-%d").tolist(),
+            y_pred.tolist()
+        )),
+        "dowhy_backdoor":    dowhy_backdoor,
+        "refutation_pval":   refutation_pval,
+        "backdoor_n_features": len(bd_idx),
+    }
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -292,17 +421,17 @@ def run_dml(df: pd.DataFrame, target: str,
         T_te = X_te[cause_cols].values
         W_te = X_te[control_cols].values
 
-        est.fit(y_tr.values, T=T_tr, X=None, W=W_tr)
+        est.fit(y_tr.values.ravel(), T=T_tr, X=None, W=W_tr)
         # EconML prediction: causal effect * T
         effects = est.effect(T0=np.zeros_like(T_te), T1=T_te, X=None)
         # Baseline от control: отдельная регрессия
         rf_base = RandomForestRegressor(n_estimators=100, random_state=42)
-        rf_base.fit(W_tr, y_tr.values -
+        rf_base.fit(W_tr, y_tr.values.ravel() -
                     est.effect(T0=np.zeros_like(T_tr), T1=T_tr).flatten())
         baseline_pred = rf_base.predict(W_te)
         y_pred = baseline_pred + effects.flatten()
 
-        metrics = compute_metrics(y_te.values, y_pred, "DML_EconML")
+        metrics = compute_metrics(y_te.values.ravel(), y_pred, "DML_EconML")
         return {
             "method":    "DML_EconML",
             "metrics":   metrics,
@@ -338,8 +467,8 @@ def _manual_dml(X_tr, X_te, y_tr, y_te,
 
     # Step 1: partialling out Y
     m_y = GradientBoostingRegressor(n_estimators=80, max_depth=3, random_state=0)
-    m_y.fit(W_tr, y_tr.values)
-    res_y_tr = y_tr.values - m_y.predict(W_tr)
+    m_y.fit(W_tr, y_tr.values.ravel())
+    res_y_tr = y_tr.values.ravel() - m_y.predict(W_tr)
 
     # Step 2: partialling out T (каждый treatment по отдельности)
     res_T_tr = np.zeros_like(T_tr, dtype=float)
@@ -669,7 +798,10 @@ def _run_one_control_set(df_stat: pd.DataFrame,
         log.info(f"    horizon={h} | controls={label}")
         h_res = {}
 
-        h_res["causal_impact"] = run_causal_impact(df_stat, target, controls, horizon=h)
+        h_res["causal_impact"] = run_scm_dowhy(
+            df_stat, target, causes, controls,
+            dag=ALL_DAGS.get(target), horizon=h
+        )
 
         h_res["dml"] = run_dml(df_stat, target, causes, controls,
                                horizon=h)
@@ -777,6 +909,6 @@ if __name__ == "__main__":
             var_sel = json.load(f)
     else:
         log.info("Запускаем step2...")
-        var_sel = run_variable_selection(use_pc=True)
+        var_sel = run_variable_selection(use_pcmci=True)
 
     run_all_causal_models(var_sel)

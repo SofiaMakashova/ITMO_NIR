@@ -87,9 +87,9 @@ GROUP_COLORS = {
 COLORS_CAUSAL   = ["#2196F3", "#00BCD4", "#4CAF50", "#8BC34A"]
 COLORS_BASELINE = ["#FF9800", "#F44336", "#9C27B0", "#795548"]
 
-_DARK_BG  = "#0F1117"
-_CARD_BG  = "#1A1B2E"
-_GRID_CLR = "#2A2B3D"
+_DARK_BG  = "#FFFFFF"
+_CARD_BG  = "#F5F5F5"
+_GRID_CLR = "#E0E0E0"
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -231,10 +231,10 @@ def _dark_fig(w, h):
 
 def _style_ax(ax, title="", xlabel="", ylabel=""):
     ax.set_facecolor(_CARD_BG)
-    ax.set_title(title, color="white", fontsize=11, pad=8)
+    ax.set_title(title, color="black", fontsize=11, pad=8)
     ax.set_xlabel(xlabel, color="#AAAAAA", fontsize=9)
     ax.set_ylabel(ylabel, color="#AAAAAA", fontsize=9)
-    ax.tick_params(colors="white", labelsize=8)
+    ax.tick_params(colors="black", labelsize=8)
     for sp in ax.spines.values():
         sp.set_edgecolor(_GRID_CLR)
     ax.grid(color=_GRID_CLR, linewidth=0.5, linestyle="--", alpha=0.7)
@@ -282,17 +282,17 @@ def plot_heatmap_by_horizon(full_df: pd.DataFrame, metric: str = "RMSE",
                 best_row = pivot.iloc[i].min()
                 fw = "bold" if abs(val - best_row) < 1e-9 else "normal"
                 ax.text(j, i, f"{val:.3f}", ha="center", va="center",
-                        fontsize=7, color="white", fontweight=fw)
+                        fontsize=7, color="black", fontweight=fw)
 
     ax.set_xticks(range(nc))
     ax.set_yticks(range(nr))
     ax.set_xticklabels(col_order, rotation=35, ha="right",
-                       fontsize=9, color="white")
+                       fontsize=9, color="black")
     ylabels = ax.set_yticklabels(pivot.index, fontsize=9)
     for lbl in ylabels:
         akey = next((k for k, v in ASSET_LABELS.items()
                      if v == lbl.get_text()), None)
-        lbl.set_color(GROUP_COLORS.get(ASSET_GROUP.get(akey, ""), "white"))
+        lbl.set_color(GROUP_COLORS.get(ASSET_GROUP.get(akey, ""), "black"))
 
     n_c = len([c for c in col_order
                if c in [METHOD_LABELS[m] for m in CAUSAL_METHODS]])
@@ -307,16 +307,16 @@ def plot_heatmap_by_horizon(full_df: pd.DataFrame, metric: str = "RMSE",
 
     ax.set_title(f"Сравнение методов — {metric}, h={horizon}  "
                  f"(зелёный = лучше | нормировка построчная)",
-                 color="white", fontsize=12, pad=12)
+                 color="black", fontsize=12, pad=12)
     cbar = plt.colorbar(im, ax=ax, fraction=0.02, pad=0.02)
-    cbar.ax.tick_params(colors="white", labelsize=7)
+    cbar.ax.tick_params(colors="black", labelsize=7)
 
     from matplotlib.patches import Patch
     legend_elements = [Patch(facecolor=c, label=f"Группа {g}")
                        for g, c in GROUP_COLORS.items()]
     ax.legend(handles=legend_elements, loc="upper left",
               facecolor=_CARD_BG, edgecolor=_GRID_CLR,
-              labelcolor="white", fontsize=8)
+              labelcolor="black", fontsize=8)
 
     plt.tight_layout()
     path = FIGURES_DIR / f"heatmap_{metric}_h{horizon}.png"
@@ -364,10 +364,10 @@ def plot_horizon_progression(full_df: pd.DataFrame, metric: str = "RMSE"):
                     label=method, alpha=0.9)
 
         ax.legend(fontsize=5.5, facecolor=_CARD_BG, edgecolor=_GRID_CLR,
-                  labelcolor="white", ncol=2)
+                  labelcolor="black", ncol=2)
 
     fig.suptitle(f"Деградация метрики {metric} по горизонтам прогноза",
-                 color="white", fontsize=13, y=1.02)
+                 color="black", fontsize=13, y=1.02)
     path = FIGURES_DIR / f"horizon_progression_{metric}.png"
     plt.savefig(path, dpi=150, bbox_inches="tight", facecolor=_DARK_BG)
     log.info(f"  ✓ {path.name}")
@@ -391,8 +391,8 @@ def plot_dag_divergence(dag_df: pd.DataFrame, metric: str = "RMSE"):
     colors = ["#27AE60" if v < 0 else "#E74C3C" for v in agg.values]
     ylabels = [ASSET_LABELS.get(t, t) for t in agg.index]
     bars = ax.barh(ylabels, agg.values, color=colors,
-                   edgecolor="white", linewidth=0.4, alpha=0.85)
-    ax.axvline(0, color="white", linewidth=0.8)
+                   edgecolor="black", linewidth=0.4, alpha=0.85)
+    ax.axvline(0, color="black", linewidth=0.8)
 
     max_abs = abs(agg.values).max() if len(agg) > 0 else 1
     for bar, val in zip(bars, agg.values):
@@ -400,7 +400,7 @@ def plot_dag_divergence(dag_df: pd.DataFrame, metric: str = "RMSE"):
                 bar.get_y() + bar.get_height() / 2,
                 f"{val:+.4f}", va="center",
                 ha="left" if val >= 0 else "right",
-                color="white", fontsize=8)
+                color="black", fontsize=8)
 
     pc_wins  = (agg < 0).sum()
     exp_wins = (agg >= 0).sum()
@@ -452,9 +452,9 @@ def plot_causal_vs_baseline(full_df: pd.DataFrame, metric: str = "RMSE",
               ylabel=metric)
 
     b1 = ax.bar(x - w / 2, df_plot["causal"],   w, label="Best Causal",
-                color="#2196F3", edgecolor="white", linewidth=0.4, alpha=0.85)
+                color="#2196F3", edgecolor="black", linewidth=0.4, alpha=0.85)
     b2 = ax.bar(x + w / 2, df_plot["baseline"], w, label="Best Baseline",
-                color="#FF9800", edgecolor="white", linewidth=0.4, alpha=0.85)
+                color="#FF9800", edgecolor="black", linewidth=0.4, alpha=0.85)
 
     for i, row in df_plot.iterrows():
         pct   = (row["baseline"] - row["causal"]) / (row["baseline"] + 1e-9) * 100
@@ -465,7 +465,7 @@ def plot_causal_vs_baseline(full_df: pd.DataFrame, metric: str = "RMSE",
 
     ax.set_xticks(x)
     ax.set_xticklabels(df_plot["label"], rotation=30, ha="right",
-                       fontsize=9, color="white")
+                       fontsize=9, color="black")
     ax.legend(facecolor=_CARD_BG, edgecolor=_GRID_CLR,
               labelcolor="white", fontsize=9)
 

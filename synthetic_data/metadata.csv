@@ -1,0 +1,4 @@
+scenario,description,true_effect,n_realizations,T
+1,Linear VAR with confouncer C,0.8,10,600
+2,Nonlinear SETAR with threshold effect,0.5 (low) / 1.5 (high),10,600
+3,Latent confounder U with proxy W,0.7,10,600
